@@ -47,6 +47,7 @@ QUEUE_CONNECTION=database  # 队列依赖：邮件/Stripe/队列化 Webhook
 CRM_WEBHOOK_QUEUE=false    # 队列化 Webhook 推送（需先保证 worker 常驻）
 CRM_SUBDOMAIN_ROOT=        # 如 crm.example.com，启用子域名租户识别（见 architecture.md 第七章）
 CRM_ROBOT_WEBHOOK_URL=     # 群机器人通知（见 config.md）
+CRM_ERROR_ALERTS=true           # 异常告警推送群机器人（Phase 7，见 monitoring.md）
 CRM_QUEUE_FAILURE_NOTIFY=true   # 队列失败告警（见下文监控）
 
 STRIPE_PUBLIC_KEY= / STRIPE_SECRET_KEY= / STRIPE_WEBHOOK_SECRET=   # Stripe 订阅（见 stripe.md）
@@ -54,7 +55,7 @@ LLM_API_KEY=               # AI 建议/摘要（见 llm.md）
 MAIL_MAILER=smtp ...       # 邮箱验证与邮件提醒（见 config.md）
 ```
 
-> 安全提醒：`.env` 含 APP_KEY 与全部密钥，**必须纳入服务器备份**；丢失 APP_KEY 将导致加密数据（2FA secret 等）不可解密。
+> 安全提醒：`.env` 含 APP_KEY 与全部密钥，**必须纳入服务器备份**；丢失/轮换 APP_KEY 将导致加密数据（2FA secret、租户白标 SMTP 密码等）不可解密——其中白标 SMTP 解密失败会自动降级平台默认邮件、不阻塞业务，但轮换前仍应评估影响（见 [white-label.md](white-label.md)）。
 
 ## 四、Web 服务器
 
@@ -163,3 +164,23 @@ tar -xzf /backup/attachments_2026-10-12.tar.gz -C /var/www/crm/storage/app
 - [ ] 邮件发送已配置（邮箱验证依赖，未配置时注册用户无法过验证）
 - [ ] 备份 cron 运行一次并验证可恢复
 - [ ] `php artisan health-check`（`crm:health-check`）手动跑一次确认输出「队列正常」
+- [ ] `CRM_ERROR_ALERTS=true` 且 `CRM_ROBOT_WEBHOOK_URL` 可达（触发一次测试异常验证告警送达）
+- [ ] 如有 API 变更，`php artisan api:generate-docs` 已重新生成并提交 `public/api/openapi.json`（`/api/docs` 可访问）
+- [ ] 发布含前端静态资源变更时，`public/sw.js` 的 `CACHE_NAME` 已更新（否则老客户端继续命中旧缓存，见 [pwa.md](pwa.md)）
+- [ ] `php artisan crm:benchmark` 记录一次上线基线（见第十节）
+
+## 九、CI/CD（GitHub Actions）
+
+`.github/workflows/ci.yml` 在每次 push / PR 时自动执行：composer install → 生成测试 `.env`（sqlite :memory:）→ `php artisan migrate:fresh` → `php artisan test` 全量回归。**合并前必须绿灯**，防止带病上线。
+
+注意：CI 用 sqlite :memory: 跑测试，与生产 MySQL 存在方言差异；涉及 MySQL 特有语法的迁移（如函数索引），上线前应在预发环境手动执行 `php artisan migrate --force` 验证。
+
+## 十、性能基准
+
+上线前后各跑一次，记录基线并对比索引效果（详见 [performance.md](performance.md)）：
+
+```bash
+php artisan crm:benchmark                    # 表格输出，6 类核心查询路径
+php artisan crm:benchmark --iterations=10    # 提高采样次数降低抖动
+php artisan crm:benchmark --json             # JSON 输出，可脚本化留存对比
+```

@@ -100,6 +100,26 @@ CRM_ROBOT_WEBHOOK_URL=https://oapi.dingtalk.com/robot/send?access_token=xxx
 - 推送超时 5s，失败仅记 `storage/logs/laravel.log`（warning），不影响提醒与工作流主流程
 - 未配置 `CRM_ROBOT_WEBHOOK_URL` 时 robot 渠道自动从 via() 中剔除，零配置安全降级
 
+### error_alerts（Phase 7 错误监控）
+
+`config/crm.php` — 异常告警推送到群机器人（复用 `reminder.robot` 的 Webhook 配置），详见 [docs/monitoring.md](monitoring.md)。
+
+```php
+'error_alerts' => [
+    'enabled' => env('CRM_ERROR_ALERTS', true),
+    // 同一错误签名（类+文件+行）的告警冷却期（秒）
+    'cooldown' => env('CRM_ERROR_ALERT_COOLDOWN', 600),
+],
+```
+
+```ini
+# .env
+CRM_ERROR_ALERTS=true
+CRM_ERROR_ALERT_COOLDOWN=600   # 秒；同一签名冷却期内不重复推送
+```
+
+未配置 `CRM_ROBOT_WEBHOOK_URL` 时仅记日志不推送（graceful degradation）。
+
 ---
 
 ## sanctum.php（Phase 3）
@@ -168,12 +188,13 @@ stalled 类规则需配合 Cron：`php artisan crm:run-workflows --all`。
 
 ## plans.php（原 MVP 已有）
 
-`config/plans.php` — 套餐配额（以下为实际生效值，与 [docs/plans.md](plans.md) 一致）：
+`config/plans.php` — 套餐配额（以下为实际生效值，与 [docs/plans.md](plans.md) 一致）。`monthly_price`（元/CNY）用于平台收入看板 MRR 计算（Phase 8），修改后需 `php artisan config:clear`：
 
 ```php
 return [
     'free' => [
         'name' => '免费版',
+        'monthly_price' => 0,
         'max_users' => 3,
         'trial_days' => 14,
         'quotas' => [
@@ -186,6 +207,7 @@ return [
     ],
     'pro' => [
         'name' => '专业版',
+        'monthly_price' => 199,
         'max_users' => 20,
         'quotas' => [
             'companies' => 2000,
@@ -197,6 +219,7 @@ return [
     ],
     'enterprise' => [
         'name' => '企业版',
+        'monthly_price' => 999,
         'max_users' => -1,
         'quotas' => [/* -1 不限 */],
         'features' => [/* pro 全部 + webhooks/automation */],
@@ -261,6 +284,12 @@ LLM_API_KEY=
 LLM_BASE_URL=https://api.openai.com/v1
 LLM_MODEL=gpt-4o-mini
 LLM_TIMEOUT=20
+
+# ---- 监控与告警（Phase 7，复用 robot 渠道 Webhook）----
+CRM_ERROR_ALERTS=true
+CRM_ERROR_ALERT_COOLDOWN=600
+CRM_ROBOT_TYPE=dingtalk
+CRM_ROBOT_WEBHOOK_URL=
 ```
 
 ---

@@ -93,6 +93,26 @@
 - **API Token scope** — 创建 Token 可勾选 read/write 权限范围，中间件按 HTTP 方法校验 ability（GET→read、写→write），只读集成最小授权（详见 [docs/security.md](docs/security.md)）
 - **界面多语言（i18n）** — 内置中文（默认）/ 英文两套界面语言，顶栏一键切换存 `users.locale`（详见 [docs/i18n.md](docs/i18n.md)）
 
+### Phase 7 — 工程化与商业化闭环（上线前 P0/P1）
+
+- **GitHub Actions CI** — push/PR 自动跑全量测试（PHP 8.3 + sqlite :memory:），绿灯才可合并
+- **错误监控 ErrorReporter** — 异常聚合签名 + 冷却去重后推送群机器人告警（`crm.error_alerts` 配置，详见 [docs/monitoring.md](docs/monitoring.md)）
+- **Stripe 发票同步 + 账单历史** — `invoice.paid/payment_failed` 幂等入 `tenant_invoices`，订阅页展示近 12 期账单与支付状态（详见 [docs/billing.md](docs/billing.md)）
+- **公共线索表单（web-to-lead）** — 租户生成 `/f/{uuid}` 公开表单，蜜罐防滥用 + 限流 + 套餐配额前置检查，游客提交直达线索池（详见 [docs/web-form.md](docs/web-form.md)）
+- **重复数据合并** — 公司/联系人同名候选检测，空字段回填 + 自定义字段合并 + 关联对象迁移，事务 + batch_id 审计（详见 [docs/merge.md](docs/merge.md)）
+
+### Phase 8 — 体验与运营（P2）
+
+- **仪表板自定义小组件** — 4 个可配置区块（待办/分析/最近商机/高分商机），开关状态存 `users.dashboard_widgets`（详见 [docs/dashboard-widgets.md](docs/dashboard-widgets.md)）
+- **PWA** — manifest + Service Worker（静态资源 cache-first、离线回退页），移动端可安装（详见 [docs/pwa.md](docs/pwa.md)）
+- **租户白标 SMTP** — 租户配置自有 SMTP 与发件人身份，提醒/邀请邮件从租户品牌发出；运行时切换 mailer 且长驻 worker 复位隔离（详见 [docs/white-label.md](docs/white-label.md)）
+- **平台收入/流失看板** — MRR/ARPU、付费/试用租户、累计流失率、近 12 个月发票收入按月按币种汇总（详见 [docs/platform-revenue.md](docs/platform-revenue.md)）
+
+### Phase 9 — 开放与性能（P3）
+
+- **OpenAPI 3.0 规范 + 交互式文档** — `php artisan api:generate-docs` 生成规范，`/api/docs` Swagger UI 在线调试、`/api/openapi.json` 供 SDK 导入（详见 [docs/api-reference.md](docs/api-reference.md)）
+- **性能基准与索引评估** — `crm:benchmark` 六类核心查询路径计时（--json 可脚本化），补充 5 组复合索引并输出查询→索引映射表（详见 [docs/performance.md](docs/performance.md)）
+
 ## 快速开始
 
 ```bash
@@ -259,6 +279,16 @@ config/
 - [数据报表](docs/reports.md)
 - [审计日志](docs/audit.md)
 - [REST API 文档](docs/api.md) — Phase 3
+- [REST API 交互式文档（OpenAPI）](docs/api-reference.md) — Phase 9
+- [错误监控](docs/monitoring.md) — Phase 7
+- [Stripe 发票与账单历史](docs/billing.md) — Phase 7
+- [公共线索表单（web-to-lead）](docs/web-form.md) — Phase 7
+- [重复数据合并](docs/merge.md) — Phase 7
+- [仪表板自定义小组件](docs/dashboard-widgets.md) — Phase 8
+- [PWA](docs/pwa.md) — Phase 8
+- [租户白标 SMTP](docs/white-label.md) — Phase 8
+- [平台收入/流失看板](docs/platform-revenue.md) — Phase 8
+- [性能基准与索引评估](docs/performance.md) — Phase 9
 - [Webhook 集成](docs/webhook.md) — Phase 3
 - [Stripe 订阅计费](docs/stripe.md) — Phase 3
 - [LLM 集成](docs/llm.md) — Phase 4
