@@ -110,8 +110,10 @@ class Tenancy
 
 中间件在 `bootstrap/app.php` 中注册：
 
+### Web 请求
+
 ```
-HTTP 请求
+HTTP 请求（Web）
   │
   ▼ Laravel 默认中间件（TrustProxies / HandleCors / StartSession / ... / AuthenticateSession）
   │
@@ -133,6 +135,30 @@ HTTP 请求
   │
   ▼ Tenancy->id() 已有值 → TenantScope 自动附加 WHERE → 查询安全
 ```
+
+### API 请求（Phase 3 新增）
+
+```
+HTTP 请求（/api/v1/*）
+  │
+  ▼ Laravel API 默认中间件（ThrottleRequestsApi / ...）
+  │
+  ▼ auth:sanctum  ← 解析 Authorization: Bearer <token>
+  │      └─ Sanctum 查 personal_access_tokens 表
+  │      └─ 找到 → $request->user() = User（有 tenant_id）
+  │      └─ 没找到 → 401
+  │
+  ▼ BootstrapTenancy  ← Phase 3 新增！api 组末尾追加
+  │      └─ 从 $request->user() 初始化 Tenancy::forUser()
+  │      └─ Tenancy->id() 有值了
+  │
+  ▼ verified / ensure.has.tenant  ← 业务路由组中间件
+  │
+  ▼ TenantScope 自动过滤 → API 跨租户隔离生效 ✅
+```
+
+> **关键设计**：BootstrapTenancy 同时在 `web` 和 `api` 组末尾执行，API 无需额外中间件！
+> `TenantScope` + `BelongsToTenant` 的租户隔离机制对 Web 和 API 完全复用，无需两套代码。
 
 ### 中间件注册代码
 
@@ -227,20 +253,30 @@ public function mount(?Company $company = null): void
 
 ---
 
-## 七、子域名扩展点（已预留）
+## 七、子域名租户识别（Phase 6 已实现）
 
-当前 Tenancy 绑定到用户（user-bound），登录后确定租户。如果未来要支持 **子域名即租户** 模式（如 `acme.crm.servbay.host`），改动点：
+配置 `crm.subdomain_root`（环境变量 `CRM_SUBDOMAIN_ROOT`，如 `crm.example.com`）后启用，**为空时完全禁用**（本地开发/测试零影响，走用户所属租户的默认逻辑）。
 
-1. **BootstrapTenancy** 中间件加一段子域名解析：
-   ```php
-   $host = $request->getHost(); // acme.crm.servbay.host
-   $subdomain = explode('.', $host)[0]; // acme
-   $tenant = Tenant::where('slug', $subdomain)->first();
-   app(Tenancy::class)->setTenant($tenant);
-   ```
+```
+请求 acme.crm.example.com
+  │
+  ▼ BootstrapTenancy（解析顺序）
+  │      ├─ host = 主站 crm.example.com        → 回退：登录用户所属租户（forUser）
+  │      ├─ host = acme.crm.example.com        → 查 tenants(slug=acme, is_active)
+  │      │      ├─ 不存在/已停用                → 404
+  │      │      ├─ 登录用户 tenant_id ≠ 租户    → 403（平台超管豁免）
+  │      │      └─ 匹配                        → Tenancy::lockTenant() 锁定上下文
+  │      └─ host = localhost / 未配置 root     → 完全不识别（no-op）
+  │
+  ▼ EnsureUserHasTenant 等后续中间件再次 forUser 时，
+    Tenancy 检测到 tenantLocked=true，不把租户覆盖回用户所属租户 ✅
+```
 
-2. 租户 slug 字段需在 `tenants` 表加唯一索引（当前 seeder 可快速补）
+要点：
 
-3. 用户可跨租户（User 的 tenant_id 可空，多对多 pivot 表关联）
-
-当前架构天然支持扩展，不需要推翻重来。
+- **租户锁定**：`Tenancy::lockTenant()` 设置 `tenantLocked` 标志，保证子域名上下文穿透整个中间件链（`ensure.has.tenant` 会再调一次 `forUser`）
+- **归属校验**：登录用户（平台超管除外）只能访问自己所属租户的子域名，防止通过他人子域名探测数据
+- `tenants.slug` 已有唯一索引（建表迁移自带）
+- slug 格式校验 `[a-z0-9][a-z0-9-]{0,62}`，多级子域名只取第一段
+- 生产部署：Nginx/Caddy 需配置泛域名解析（`*.crm.example.com` → 应用），并设置 `CRM_SUBDOMAIN_ROOT=crm.example.com`
+- 测试：`tests/Feature/SubdomainTenancyTest.php`（8 个用例，含端到端数据隔离）
