@@ -1,8 +1,8 @@
 <div class="max-w-4xl space-y-6">
     <!-- 页面标题 -->
     <div>
-        <h1 class="text-2xl font-bold text-gray-900">套餐订阅</h1>
-        <p class="text-sm text-gray-500 mt-1">查看当前套餐与用量</p>
+        <h1 class="text-2xl font-bold text-gray-900">{{ __('settings_subscription.title') }}</h1>
+        <p class="text-sm text-gray-500 mt-1">{{ __('settings_subscription.subtitle') }}</p>
     </div>
 
     @if(session('error'))
@@ -13,13 +13,13 @@
 
     @unless($canCreate)
         <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
-            试用期已结束，新增数据功能已停用。现有数据仍可正常查看和编辑，升级套餐后即可恢复新增。
+            {{ __('settings_subscription.trial_ended_deactivated') }}
         </div>
     @endunless
 
     @if(in_array($tenant->stripe_status, ['past_due', 'unpaid']))
         <div class="bg-amber-50 border border-amber-200 text-amber-700 px-4 py-3 rounded-lg text-sm">
-            订阅付款失败或已逾期（状态：{{ $tenant->stripe_status }}），请尽快更新支付方式以免服务受限。
+            {{ __('settings_subscription.stripe_past_due', ['status' => $tenant->stripe_status]) }}
         </div>
     @endif
 
@@ -31,16 +31,16 @@
                     <h2 class="text-lg font-semibold text-gray-900">{{ $planName }}</h2>
                     @if($tenant->plan === 'free')
                         @if($canCreate)
-                            <span class="px-2 py-0.5 text-xs rounded-full bg-green-100 text-green-700">试用中，剩余 {{ (int) $trialDaysLeft }} 天</span>
+                            <span class="px-2 py-0.5 text-xs rounded-full bg-green-100 text-green-700">{{ __('settings_subscription.trial_active', ['days' => (int) $trialDaysLeft]) }}</span>
                         @else
-                            <span class="px-2 py-0.5 text-xs rounded-full bg-red-100 text-red-700">试用已结束</span>
+                            <span class="px-2 py-0.5 text-xs rounded-full bg-red-100 text-red-700">{{ __('settings_subscription.trial_ended') }}</span>
                         @endif
                     @else
-                        <span class="px-2 py-0.5 text-xs rounded-full bg-purple-100 text-purple-700">付费套餐</span>
+                        <span class="px-2 py-0.5 text-xs rounded-full bg-purple-100 text-purple-700">{{ __('settings_subscription.paid_plan') }}</span>
                     @endif
                 </div>
                 @if($tenant->plan === 'free' && $canCreate)
-                    <p class="text-sm text-gray-500 mt-1">试用期至 {{ $trialEndsAt->format('Y-m-d') }}</p>
+                    <p class="text-sm text-gray-500 mt-1">{{ __('settings_subscription.trial_until', ['date' => $trialEndsAt->format('Y-m-d')]) }}</p>
                 @endif
             </div>
         </div>
@@ -48,45 +48,45 @@
         @if($tenant->plan === 'free')
             <div class="mt-4 bg-indigo-50 border border-indigo-100 text-indigo-700 px-4 py-3 rounded-lg text-sm">
                 @if($stripeEnabled && $isAdmin)
-                    在线升级：
+                    {{ __('settings_subscription.upgrade_online') }}
                     <button wire:click="upgrade('pro')" wire:loading.attr="disabled"
-                            class="mx-1 px-3 py-1 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-medium rounded transition-colors">开通专业版</button>
+                            class="mx-1 px-3 py-1 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-medium rounded transition-colors">{{ __('settings_subscription.upgrade_pro_btn') }}</button>
                     <button wire:click="upgrade('enterprise')" wire:loading.attr="disabled"
-                            class="mx-1 px-3 py-1 bg-purple-600 hover:bg-purple-700 text-white text-xs font-medium rounded transition-colors">开通企业版</button>
+                            class="mx-1 px-3 py-1 bg-purple-600 hover:bg-purple-700 text-white text-xs font-medium rounded transition-colors">{{ __('settings_subscription.upgrade_enterprise_btn') }}</button>
                 @else
-                    需要更多配额？请联系平台管理员开通
-                    <span class="font-semibold">专业版</span>
-                    或
-                    <span class="font-semibold">企业版</span>。
+                    {{ __('settings_subscription.contact_admin_upgrade') }}
+                    <span class="font-semibold">{{ __('settings_subscription.plan_pro') }}</span>
+                    {{ __('settings_subscription.or') }}
+                    <span class="font-semibold">{{ __('settings_subscription.plan_enterprise') }}</span>{{ __('settings_subscription.sentence_end') }}
                 @endif
             </div>
         @elseif($tenant->plan === 'pro' && $stripeEnabled && $isAdmin)
             <div class="mt-4 bg-purple-50 border border-purple-100 text-purple-700 px-4 py-3 rounded-lg text-sm">
-                在线升级：
+                {{ __('settings_subscription.upgrade_online') }}
                 <button wire:click="upgrade('enterprise')" wire:loading.attr="disabled"
-                        class="mx-1 px-3 py-1 bg-purple-600 hover:bg-purple-700 text-white text-xs font-medium rounded transition-colors">升级企业版（解锁 Webhook / 自动化工作流）</button>
+                        class="mx-1 px-3 py-1 bg-purple-600 hover:bg-purple-700 text-white text-xs font-medium rounded transition-colors">{{ __('settings_subscription.upgrade_enterprise_webhook') }}</button>
             </div>
         @endif
         @if($tenant->stripe_status)
-            <p class="mt-3 text-xs text-gray-400">订阅状态：{{ $tenant->stripe_status }}</p>
+            <p class="mt-3 text-xs text-gray-400">{{ __('settings_subscription.stripe_status', ['status' => $tenant->stripe_status]) }}</p>
         @endif
         @if($tenant->plan !== 'free' && $stripeEnabled && $isAdmin)
             <button wire:click="portal" wire:loading.attr="disabled"
                     class="mt-3 px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-medium rounded transition-colors">
-                管理订阅与账单（Stripe 客户门户）
+                {{ __('settings_subscription.manage_billing') }}
             </button>
         @endif
     </div>
 
     <!-- 用量明细 -->
     <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-        <h3 class="text-sm font-medium text-gray-700 mb-4">用量明细</h3>
+        <h3 class="text-sm font-medium text-gray-700 mb-4">{{ __('settings_subscription.usage_detail') }}</h3>
 
         <!-- 成员 -->
         <div class="mb-5">
             <div class="flex justify-between text-sm mb-1.5">
-                <span class="text-gray-700">团队成员</span>
-                <span class="text-gray-500">{{ $memberCount }} / {{ $maxUsers < 0 ? '不限' : $maxUsers }}</span>
+                <span class="text-gray-700">{{ __('settings_subscription.usage_members') }}</span>
+                <span class="text-gray-500">{{ $memberCount }} / {{ $maxUsers < 0 ? __('settings_subscription.unlimited') : $maxUsers }}</span>
             </div>
             <div class="h-2 bg-gray-100 rounded-full overflow-hidden">
                 @if($maxUsers > 0)
@@ -102,7 +102,7 @@
             <div class="mb-5 last:mb-0">
                 <div class="flex justify-between text-sm mb-1.5">
                     <span class="text-gray-700">{{ $item['label'] }}</span>
-                    <span class="text-gray-500">{{ $item['current'] }} / {{ $item['quota'] < 0 ? '不限' : $item['quota'] }}</span>
+                    <span class="text-gray-500">{{ $item['current'] }} / {{ $item['quota'] < 0 ? __('settings_subscription.unlimited') : $item['quota'] }}</span>
                 </div>
                 <div class="h-2 bg-gray-100 rounded-full overflow-hidden">
                     @if($item['quota'] > 0)
@@ -114,5 +114,39 @@
                 </div>
             </div>
         @endforeach
+    </div>
+
+    <!-- 账单历史 -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+        <h3 class="text-sm font-medium text-gray-700 mb-4">{{ __('settings_subscription.billing_history') }}</h3>
+
+        @if($invoices->isEmpty())
+            <p class="text-sm text-gray-400">{{ __('settings_subscription.no_invoices') }}</p>
+        @else
+            <div class="divide-y divide-gray-100">
+                @foreach($invoices as $invoice)
+                    <div class="flex items-center justify-between py-3 first:pt-0 last:pb-0">
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <span class="text-sm font-medium text-gray-900">{{ strtoupper($invoice->currency) }} {{ number_format($invoice->amount / 100, 2) }}</span>
+                                <span class="px-2 py-0.5 text-xs rounded-full {{ $invoice->badgeClass() }}">{{ __('settings_subscription.invoice_status_'.$invoice->status) }}</span>
+                            </div>
+                            <p class="text-xs text-gray-400 mt-0.5">
+                                @if($invoice->period_start && $invoice->period_end)
+                                    {{ $invoice->period_start->format('Y-m-d') }} ~ {{ $invoice->period_end->format('Y-m-d') }}
+                                @endif
+                                @if($invoice->paid_at)
+                                    · {{ __('settings_subscription.paid_on', ['date' => $invoice->paid_at->format('Y-m-d')]) }}
+                                @endif
+                            </p>
+                        </div>
+                        @if($invoice->hosted_invoice_url)
+                            <a href="{{ $invoice->hosted_invoice_url }}" target="_blank" rel="noopener"
+                               class="text-xs font-medium text-indigo-600 hover:text-indigo-700">{{ __('settings_subscription.view_invoice') }}</a>
+                        @endif
+                    </div>
+                @endforeach
+            </div>
+        @endif
     </div>
 </div>

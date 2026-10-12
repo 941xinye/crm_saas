@@ -180,6 +180,51 @@ class StripeSubscriptionService
     }
 
     /**
+     * 从 Invoice 事件中同步账单记录（invoice.paid / invoice.payment_failed）。
+     * 按 stripe_invoice_id 幂等 upsert；找不到租户时静默跳过（graceful degradation）。
+     */
+    public function handleInvoiceEvent(string $event, array $data): void
+    {
+        $invoiceId = $data['id'] ?? null;
+        if (! $invoiceId) {
+            return;
+        }
+
+        // 通过 metadata 或 customer 反查租户
+        $tenantId = $data['metadata']['tenant_id'] ?? null;
+        $tenant = $tenantId ? Tenant::find($tenantId) : null;
+        $tenant ??= Tenant::where('stripe_customer_id', $data['customer'] ?? null)->first();
+        if (! $tenant) {
+            return;
+        }
+
+        $status = match ($event) {
+            'invoice.paid' => $data['status'] ?? 'paid',
+            'invoice.payment_failed' => 'failed',
+            default => $data['status'] ?? null,
+        };
+        if (! $status) {
+            return;
+        }
+
+        $invoice = \App\Models\TenantInvoice::withoutTenant()->updateOrCreate(
+            ['stripe_invoice_id' => $invoiceId],
+            [
+                'tenant_id' => $tenant->id,
+                'amount' => (int) ($data['amount_paid'] ?? $data['amount_due'] ?? 0),
+                'currency' => $data['currency'] ?? 'usd',
+                'status' => $status,
+                'hosted_invoice_url' => $data['hosted_invoice_url'] ?? null,
+                'period_start' => isset($data['period_start']) ? date('Y-m-d H:i:s', $data['period_start']) : null,
+                'period_end' => isset($data['period_end']) ? date('Y-m-d H:i:s', $data['period_end']) : null,
+                'paid_at' => ($event === 'invoice.paid' && isset($data['status_transitions']['paid_at']))
+                    ? date('Y-m-d H:i:s', $data['status_transitions']['paid_at'])
+                    : ($event === 'invoice.paid' ? now() : null),
+            ],
+        );
+    }
+
+    /**
      * 验证 Webhook 签名。
      */
     public function verifyWebhook(string $payload, string $signature): bool

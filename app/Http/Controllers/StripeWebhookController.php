@@ -19,7 +19,7 @@ class StripeWebhookController extends Controller
 
         // 验证签名
         if (! $stripe->verifyWebhook($payload, $signature)) {
-            return response('无效签名', 400);
+            return response(__('api.stripe_invalid_signature'), 400);
         }
 
         try {
@@ -31,6 +31,8 @@ class StripeWebhookController extends Controller
                 'customer.subscription.created',
                 'customer.subscription.updated',
                 'customer.subscription.deleted' => 'handleSubscriptionEvent',
+                'invoice.paid',
+                'invoice.payment_failed' => 'handleInvoiceEvent',
                 default => null,
             };
 
@@ -41,7 +43,7 @@ class StripeWebhookController extends Controller
             return response('', 200);
         } catch (\Throwable $e) {
             report($e);
-            return response('处理失败', 500);
+            return response(__('api.stripe_processing_failed'), 500);
         }
     }
 }

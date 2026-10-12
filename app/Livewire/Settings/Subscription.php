@@ -19,20 +19,20 @@ class Subscription extends Component
         $user = auth()->user();
 
         if (! $tenant || $user->role !== 'admin') {
-            session()->flash('error', '仅租户管理员可以变更套餐');
+            session()->flash('error', __('settings_subscription.flash_only_admin_change_plan'));
             return;
         }
 
         $order = ['free' => 0, 'pro' => 1, 'enterprise' => 2];
         if (($order[$plan] ?? 0) <= ($order[$tenant->plan] ?? 0)) {
-            session()->flash('error', '只能升级到更高套餐，降级请联系平台管理员');
+            session()->flash('error', __('settings_subscription.flash_upgrade_only_higher'));
             return;
         }
 
         $checkoutUrl = app(StripeSubscriptionService::class)->createCheckoutSession($tenant, $plan);
 
         if (! $checkoutUrl) {
-            session()->flash('error', '在线支付暂未开通，请联系平台管理员手动变更套餐。');
+            session()->flash('error', __('settings_subscription.flash_stripe_unavailable'));
             return;
         }
 
@@ -48,14 +48,14 @@ class Subscription extends Component
         $tenant = app(Tenancy::class)->current();
 
         if (! $tenant || auth()->user()->role !== 'admin') {
-            session()->flash('error', '仅租户管理员可以管理订阅');
+            session()->flash('error', __('settings_subscription.flash_only_admin_manage'));
             return;
         }
 
         $url = app(StripeSubscriptionService::class)->createPortalSession($tenant);
 
         if (! $url) {
-            session()->flash('error', '在线账单管理暂未开通，请联系平台管理员处理降级/取消。');
+            session()->flash('error', __('settings_subscription.flash_portal_unavailable'));
             return;
         }
 
@@ -93,6 +93,8 @@ class Subscription extends Component
             'canCreate' => $plans->canCreate($tenant),
             'stripeEnabled' => $stripe->configured(),
             'isAdmin' => auth()->user()->role === 'admin',
-        ])->layout('layouts.app', ['title' => '套餐订阅']);
+            // 账单历史（Stripe Webhook invoice.* 事件同步；未配置时为空集合）
+            'invoices' => \App\Models\TenantInvoice::orderByDesc('period_start')->orderByDesc('id')->limit(12)->get(),
+        ])->layout('layouts.app', ['title' => __('settings_subscription.title')]);
     }
 }
