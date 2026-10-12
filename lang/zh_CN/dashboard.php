@@ -4,6 +4,12 @@
 return [
     'title' => '控制台',
     'welcome' => '欢迎回来！这是您的业务概览。',
+    'customize_widgets' => '自定义',
+    'customize_widgets_desc' => '点击切换小组件显示状态，偏好仅对自己生效',
+    'widget_my_todo' => '待我处理',
+    'widget_analytics' => '阶段分布与最近活动',
+    'widget_recent_opps' => '最近商机',
+    'widget_top_scored' => '高优先级商机',
     'onboarding_title' => '快速上手',
     'onboarding_dismiss' => '不再显示',
     'onboarding_company' => '创建第一家公司',

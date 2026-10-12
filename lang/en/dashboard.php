@@ -4,6 +4,12 @@
 return [
     'title' => 'Dashboard',
     'welcome' => 'Welcome back! Here is your business overview.',
+    'customize_widgets' => 'Customize',
+    'customize_widgets_desc' => 'Toggle widgets on/off; preferences apply only to you',
+    'widget_my_todo' => 'My To-dos',
+    'widget_analytics' => 'Stage Distribution & Recent Activities',
+    'widget_recent_opps' => 'Recent Opportunities',
+    'widget_top_scored' => 'Top Opportunities',
     'onboarding_title' => 'Get Started',
     'onboarding_dismiss' => 'Dismiss',
     'onboarding_company' => 'Create your first company',

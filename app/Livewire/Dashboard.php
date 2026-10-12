@@ -17,9 +17,61 @@ class Dashboard extends Component
 {
     protected $listeners = ['refresh' => '$refresh'];
 
+    /**
+     * 可自定义的仪表板小组件（key => 语言键）。其余固定区块（统计卡片、新手引导）不可配置。
+     */
+    public const WIDGETS = [
+        'my_todo' => 'dashboard.widget_my_todo',
+        'analytics' => 'dashboard.widget_analytics',
+        'recent_opportunities' => 'dashboard.widget_recent_opps',
+        'top_scored' => 'dashboard.widget_top_scored',
+    ];
+
+    /** 当前用户启用的 widget key 列表（mount 加载，toggleWidget 持久化） */
+    public array $widgets = [];
+
+    /** 自定义面板开关 */
+    public bool $customizing = false;
+
     public function mount(): void
     {
         $this->authorize('viewAny', Company::class);
+        $this->widgets = $this->loadWidgets();
+    }
+
+    private function loadWidgets(): array
+    {
+        $saved = auth()->user()?->dashboard_widgets;
+
+        // null（未自定义）= 全部显示；数组则仅显示白名单内的启用项
+        if ($saved === null) {
+            return array_keys(self::WIDGETS);
+        }
+
+        return array_values(array_intersect(array_keys(self::WIDGETS), (array) $saved));
+    }
+
+    /**
+     * 切换小组件显示状态，持久化到当前用户。
+     */
+    public function toggleWidget(string $key): void
+    {
+        if (! array_key_exists($key, self::WIDGETS)) {
+            return;
+        }
+
+        if (in_array($key, $this->widgets)) {
+            $this->widgets = array_values(array_diff($this->widgets, [$key]));
+        } else {
+            $this->widgets[] = $key;
+        }
+
+        auth()->user()?->update(['dashboard_widgets' => $this->widgets]);
+    }
+
+    public function toggleCustomizing(): void
+    {
+        $this->customizing = ! $this->customizing;
     }
 
     /**
@@ -144,6 +196,6 @@ class Dashboard extends Component
             'myStalledOpportunities' => $myStalledOpportunities,
             'myClosingOpportunities' => $myClosingOpportunities,
             'onboarding' => $onboarding,
-        ])->layout('layouts.app', ['title' => '控制台']);
+        ])->layout('layouts.app', ['title' => __('misc.dashboard_title')]);
     }
 }

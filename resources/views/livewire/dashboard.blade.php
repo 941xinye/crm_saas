@@ -6,7 +6,30 @@
             <h1 class="text-2xl font-bold text-gray-900">{{ __('dashboard.title') }}</h1>
             <p class="text-sm text-gray-500 mt-1">{{ __('dashboard.welcome') }}</p>
         </div>
+        <button wire:click="toggleCustomizing"
+                class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-gray-300 hover:bg-gray-50 text-gray-600 text-sm rounded-lg transition-colors">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/></svg>
+            {{ __('dashboard.customize_widgets') }}
+        </button>
     </div>
+
+    @if($customizing)
+        <!-- 小组件自定义面板 -->
+        <div class="bg-white rounded-xl shadow-sm border border-indigo-100 p-4" wire:transition>
+            <p class="text-xs text-gray-500 mb-3">{{ __('dashboard.customize_widgets_desc') }}</p>
+            <div class="flex flex-wrap gap-2">
+                @foreach(\App\Livewire\Dashboard::WIDGETS as $key => $label)
+                    <button wire:click="toggleWidget('{{ $key }}')"
+                            class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm transition-colors {{ in_array($key, $widgets) ? 'bg-indigo-600 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200' }}">
+                        @if(in_array($key, $widgets))
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                        @endif
+                        {{ __($label) }}
+                    </button>
+                @endforeach
+            </div>
+        </div>
+    @endif
 
     @if($onboarding)
         <!-- 新手引导 checklist -->
@@ -104,6 +127,7 @@
     </div>
 
     <!-- 待我处理 -->
+    @if(in_array('my_todo', $widgets))
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <!-- 待办活动 -->
         <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
@@ -168,8 +192,10 @@
             </div>
         </div>
     </div>
+    @endif
 
     <!-- 下部分：两栏 -->
+    @if(in_array('analytics', $widgets))
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
         <!-- 商机阶段分布 -->
@@ -228,8 +254,10 @@
             </div>
         </div>
     </div>
+    @endif
 
     <!-- 最近商机 -->
+    @if(in_array('recent_opportunities', $widgets))
     <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
         <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
             <h3 class="text-lg font-semibold text-gray-900">{{ __('dashboard.recent_opportunities') }}</h3>
@@ -268,8 +296,10 @@
             </tbody>
         </table>
     </div>
+    @endif
 
     <!-- 高优先级商机（智能评分） -->
+    @if(in_array('top_scored', $widgets))
     <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
         <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
             <h3 class="text-lg font-semibold text-gray-900">{{ __('dashboard.top_opportunities') }}</h3>
@@ -322,4 +352,5 @@
             </tbody>
         </table>
     </div>
+    @endif
 </div>

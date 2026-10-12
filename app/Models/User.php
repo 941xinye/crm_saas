@@ -24,6 +24,8 @@ class User extends Authenticatable implements MustVerifyEmail
         'role',
         'is_platform_admin',
         'notification_prefs',
+        // 仪表板自定义小组件偏好（null = 全部默认显示）
+        'dashboard_widgets',
         'locale',
         'two_factor_secret',
         'two_factor_recovery_codes',
@@ -42,6 +44,7 @@ class User extends Authenticatable implements MustVerifyEmail
             'password' => 'hashed',
             'is_platform_admin' => 'boolean',
             'notification_prefs' => 'array',
+            'dashboard_widgets' => 'array',
             'two_factor_recovery_codes' => 'array',
             'two_factor_confirmed_at' => 'datetime',
         ];
