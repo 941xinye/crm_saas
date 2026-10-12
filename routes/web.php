@@ -89,6 +89,8 @@ Route::middleware(['auth', 'verified', 'ensure.has.tenant'])->group(function () 
         Route::get('/webhooks', \App\Livewire\Settings\Webhooks::class)->middleware('plan.feature:webhooks')->name('webhooks');
         Route::get('/automation', \App\Livewire\Settings\Automation::class)->middleware('plan.feature:automation')->name('automation');
         Route::get('/subscription', \App\Livewire\Settings\Subscription::class)->name('subscription');
+        // 白标 SMTP（仅租户管理员可操作，见 docs/white-label.md）
+        Route::get('/white-label', \App\Livewire\Settings\WhiteLabel::class)->name('white-label');
     });
 
     // 商机阶段

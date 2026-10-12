@@ -397,6 +397,11 @@
                         <a href="{{ route('settings.subscription') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                             {{ __('common.subscription') }}
                         </a>
+                        @if(auth()->user()?->role === 'admin')
+                        <a href="{{ route('settings.white-label') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                            {{ __('white_label.menu') }}
+                        </a>
+                        @endif
                     @endif
                     <div class="border-t border-gray-100"></div>
                     <a href="{{ route('settings.security') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">

@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use App\Models\Tenant;
 use App\Services\Tenancy;
+use App\Services\TenantMailer;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -33,22 +34,28 @@ class BootstrapTenancy
                 $tenancy->forUser($user);
             }
 
+            // 白标 SMTP：未配置租户在此复位平台默认（对 null 同样安全）
+            app(TenantMailer::class)->activate($tenancy->current());
+
             return $next($request);
         }
 
         $tenant = Tenant::where('slug', $subdomain)->where('is_active', true)->first();
 
         if (! $tenant) {
-            abort(404, '租户不存在或已停用');
+            abort(404, __('api.tenancy_tenant_not_found'));
         }
 
         // 归属校验：登录用户（平台超管除外）只能访问自己所属租户的子域名
         if ($user && ! $user->is_platform_admin && (int) $user->tenant_id !== $tenant->id) {
-            abort(403, '您无权访问该租户');
+            abort(403, __('api.tenancy_tenant_forbidden'));
         }
 
         $tenancy->forUser($user);
         $tenancy->lockTenant($tenant);
+
+        // 白标 SMTP：按子域名租户激活（未配置则复位平台默认）
+        app(TenantMailer::class)->activate($tenant);
 
         return $next($request);
     }

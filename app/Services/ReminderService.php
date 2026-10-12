@@ -96,9 +96,12 @@ class ReminderService
                         continue;
                     }
 
+                    // 白标 SMTP：按收件人所属租户激活（未配置租户复位平台默认）
+                    app(TenantMailer::class)->activate($activity->user->tenant);
+
                     $activity->user->notify(new ActivityDueNotification(
                         activityId: $activity->id,
-                        activitySubject: $activity->subject ?? '活动',
+                        activitySubject: $activity->subject ?? __('dashboard.activity_fallback'),
                         scheduledAt: $activity->scheduled_at->format('Y-m-d H:i'),
                         resourceUrl: route('activities.index'),
                     ));
@@ -143,6 +146,9 @@ class ReminderService
                     $refDate = $lastActivity?->created_at ?? $opportunity->created_at;
                     $daysSinceLast = (int) now()->diffInDays($refDate);
 
+                    // 白标 SMTP：按收件人所属租户激活
+                    app(TenantMailer::class)->activate($opportunity->owner->tenant);
+
                     $opportunity->owner->notify(new OpportunityNoActivityNotification(
                         opportunityId: $opportunity->id,
                         opportunityTitle: $opportunity->title,
@@ -177,6 +183,9 @@ class ReminderService
                         continue;
                     }
 
+                    // 白标 SMTP：按收件人所属租户激活
+                    app(TenantMailer::class)->activate($opportunity->owner->tenant);
+
                     $opportunity->owner->notify(new OpportunityCloseDateNotification(
                         opportunityId: $opportunity->id,
                         opportunityTitle: $opportunity->title,
@@ -209,6 +218,9 @@ class ReminderService
                     if ($this->alreadyNotified($opportunity->owner, OpportunityStalledNotification::class, $opportunity->id, 'opportunity_id')) {
                         continue;
                     }
+
+                    // 白标 SMTP：按收件人所属租户激活
+                    app(TenantMailer::class)->activate($opportunity->owner->tenant);
 
                     $opportunity->owner->notify(new OpportunityStalledNotification(
                         opportunityId: $opportunity->id,
@@ -254,6 +266,11 @@ class ReminderService
                         if ($this->alreadyNotified($recipient, TrialEndingNotification::class, $tenant->id, 'tenant_id')) {
                             continue;
                         }
+
+                        // 白标 SMTP：租户内收件人走租户品牌，平台超管走平台默认
+                        app(TenantMailer::class)->activate(
+                            $recipient->tenant_id === $tenant->id ? $tenant : null
+                        );
 
                         $recipient->notify(new TrialEndingNotification(
                             tenantId: $tenant->id,
