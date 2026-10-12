@@ -1,0 +1,23 @@
+<?php
+
+namespace Database\Factories;
+
+use App\Models\Company;
+use Illuminate\Database\Eloquent\Factories\Factory;
+
+/**
+ * @extends Factory<Company>
+ */
+class CompanyFactory extends Factory
+{
+    public function definition(): array
+    {
+        return [
+            'name' => fake()->company(),
+            'industry' => fake()->randomElement(['Technology', 'Finance', 'Healthcare', 'Education', 'Manufacturing', 'Retail', null]),
+            'website' => fake()->url(),
+            'phone' => fake()->phoneNumber(),
+            'address' => fake()->address(),
+        ];
+    }
+}
