@@ -112,4 +112,6 @@ Route::get('/settings/security', \App\Livewire\Settings\TwoFactor::class)
 // 平台管理路由（超管专用）
 Route::middleware(['auth', 'verified', 'platform.admin'])->prefix('platform')->name('platform.')->group(function () {
     Route::get('/tenants', \App\Livewire\Platform\Tenants::class)->name('tenants');
+    // 收入/流失看板（平台超管专用，见 docs/platform-revenue.md）
+    Route::get('/revenue', \App\Livewire\Platform\Revenue::class)->name('revenue');
 });

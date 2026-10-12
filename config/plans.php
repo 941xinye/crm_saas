@@ -12,6 +12,8 @@ return [
 
     'free' => [
         'name' => '免费版',
+        // 月度价格（CNY），平台收入看板 MRR 计算（platform/revenue）
+        'monthly_price' => 0,
         'max_users' => 3,
         'trial_days' => 14,
         'quotas' => [
@@ -36,6 +38,7 @@ return [
 
     'pro' => [
         'name' => '专业版',
+        'monthly_price' => 199,
         'max_users' => 20,
         'quotas' => [
             'companies' => 2000,
@@ -64,6 +67,7 @@ return [
 
     'enterprise' => [
         'name' => '企业版',
+        'monthly_price' => 999,
         'max_users' => -1,
         'quotas' => [
             'companies' => -1,

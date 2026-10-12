@@ -33,6 +33,7 @@ class Tenant extends Model
             'settings' => 'array',
             'custom_fields' => 'array',
             'trial_ends_at' => 'datetime',
+            'subscription_ends_at' => 'datetime',
             'is_active' => 'boolean',
         ];
     }
