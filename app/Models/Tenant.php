@@ -12,6 +12,8 @@ class Tenant extends Model
     protected $fillable = [
         'name',
         'slug',
+        // 公共 Web 表单（web-to-lead）标识，Settings\TenantProfile 生成/重置
+        'lead_form_key',
         'plan',
         'settings',
         'custom_fields',

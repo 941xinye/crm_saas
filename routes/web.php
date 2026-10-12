@@ -19,6 +19,11 @@ Route::post('/webhooks/stripe', \App\Http\Controllers\StripeWebhookController::c
 Route::get('/invitation/accept/{token}', \App\Livewire\Auth\AcceptInvitation::class)
     ->name('invitation.accept');
 
+// 公共线索表单（web-to-lead，游客可访问）：蜜罐字段 + IP 限流防滥用
+Route::get('/f/{key}', \App\Livewire\WebForm\LeadWebForm::class)
+    ->middleware('throttle:10,1')
+    ->name('web-form.lead');
+
 // 租户业务路由（需要 auth + 邮箱验证 + has tenant）
 Route::middleware(['auth', 'verified', 'ensure.has.tenant'])->group(function () {
     // 附件下载（租户归属由 TenantScope 自动校验）
