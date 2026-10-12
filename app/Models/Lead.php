@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Lead extends Model
 {
     /** @use HasFactory<LeadFactory> */
-    use HasFactory, SoftDeletes, BelongsToTenant;
+    use HasFactory, SoftDeletes, BelongsToTenant, \App\Models\Traits\Auditable;
 
     protected $fillable = [
         'tenant_id',

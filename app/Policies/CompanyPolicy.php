@@ -14,7 +14,8 @@ class CompanyPolicy
 
     public function view(User $user, Company $company): bool
     {
-        return true;
+        // sales 仅可查看自己负责的公司
+        return $user->canSeeAllRecords() || $company->owner_id === $user->id;
     }
 
     public function create(User $user): bool

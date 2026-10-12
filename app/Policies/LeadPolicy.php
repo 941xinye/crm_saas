@@ -14,7 +14,8 @@ class LeadPolicy
 
     public function view(User $user, Lead $lead): bool
     {
-        return true;
+        // sales 仅可查看自己负责的线索
+        return $user->canSeeAllRecords() || $lead->owner_id === $user->id;
     }
 
     public function create(User $user): bool

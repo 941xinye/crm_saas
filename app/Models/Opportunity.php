@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Opportunity extends Model
 {
     /** @use HasFactory<OpportunityFactory> */
-    use HasFactory, SoftDeletes, BelongsToTenant;
+    use HasFactory, SoftDeletes, BelongsToTenant, \App\Models\Traits\Auditable;
 
     protected $fillable = [
         'tenant_id',
@@ -23,6 +23,9 @@ class Opportunity extends Model
         'value',
         'expected_close_date',
         'probability',
+        'score',
+        'scored_at',
+        'custom_fields',
     ];
 
     protected function casts(): array
@@ -31,7 +34,30 @@ class Opportunity extends Model
             'expected_close_date' => 'date',
             'value' => 'decimal:2',
             'probability' => 'integer',
+            'score' => 'integer',
+            'scored_at' => 'datetime',
+            'custom_fields' => 'array',
         ];
+    }
+
+    /**
+     * 按评分排序：高分优先。
+     */
+    public function scopeOrderByScore($query, string $direction = 'desc')
+    {
+        return $query->orderByRaw('score IS NULL')->orderBy('score', $direction);
+    }
+
+    /**
+     * 分数区间查询（含端点）。
+     */
+    public function scopeScoreBetween($query, int $min, int $max = null)
+    {
+        if ($max === null) {
+            return $query->where('score', '>=', $min);
+        }
+
+        return $query->whereBetween('score', [$min, $max]);
     }
 
     public function contact()

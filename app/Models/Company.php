@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Company extends Model
 {
     /** @use HasFactory<CompanyFactory> */
-    use HasFactory, SoftDeletes, BelongsToTenant;
+    use HasFactory, SoftDeletes, BelongsToTenant, \App\Models\Traits\Auditable;
 
     protected $fillable = [
         'tenant_id',
@@ -21,7 +21,15 @@ class Company extends Model
         'website',
         'phone',
         'address',
+        'custom_fields',
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'custom_fields' => 'array',
+        ];
+    }
 
     public function owner()
     {
@@ -36,5 +44,10 @@ class Company extends Model
     public function opportunities()
     {
         return $this->hasMany(Opportunity::class);
+    }
+
+    public function activities()
+    {
+        return $this->morphMany(Activity::class, 'activitable');
     }
 }

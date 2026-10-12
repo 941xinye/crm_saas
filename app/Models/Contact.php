@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Contact extends Model
 {
     /** @use HasFactory<ContactFactory> */
-    use HasFactory, SoftDeletes, BelongsToTenant;
+    use HasFactory, SoftDeletes, BelongsToTenant, \App\Models\Traits\Auditable;
 
     protected $fillable = [
         'tenant_id',
@@ -21,7 +21,15 @@ class Contact extends Model
         'email',
         'phone',
         'position',
+        'custom_fields',
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'custom_fields' => 'array',
+        ];
+    }
 
     protected $appends = ['full_name'];
 
@@ -38,5 +46,10 @@ class Contact extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function activities()
+    {
+        return $this->morphMany(Activity::class, 'activitable');
     }
 }

@@ -15,6 +15,8 @@ class ActivityFactory extends Factory
         $type = fake()->randomElement(['call', 'email', 'meeting', 'note', 'task']);
 
         return [
+            'activitable_type' => \App\Models\Opportunity::class,
+            'activitable_id' => 1,
             'type' => $type,
             'subject' => match ($type) {
                 'call' => fake()->sentence(2),

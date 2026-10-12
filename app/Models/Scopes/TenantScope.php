@@ -13,9 +13,22 @@ class TenantScope implements Scope
     {
         $tenancy = app(Tenancy::class);
 
-        // 逃生舱：console/seeding/tinker 时 Tenancy::id() 为 null，不附加条件
+        // 逃生舱：console/seeding/tinker 时 Tenancy::id() 为 null，不附加条件。
+        // 但 Web 请求中若用户已认证而租户上下文尚未初始化（如路由模型绑定
+        // 早于 BootstrapTenancy 中间件执行），必须立即从当前用户引导租户，
+        // 否则作用域会被跳过，造成跨租户数据泄露。
         if ($tenancy->id() === null) {
-            return;
+            $user = auth()->user();
+
+            if ($user === null) {
+                return; // 游客或控制台场景，维持逃生舱
+            }
+
+            $tenancy->forUser($user);
+
+            if ($tenancy->id() === null) {
+                return; // 平台超管无绑定租户，维持逃生舱（可见全部数据）
+            }
         }
 
         $builder->where(

@@ -24,12 +24,12 @@ class StageSeeder extends Seeder
         $stages = collect();
 
         $defaultStages = [
-            ['name' => 'New',         'order' => 10,  'probability' => 0],
-            ['name' => 'Qualified',   'order' => 30,  'probability' => 25],
-            ['name' => 'Proposal',    'order' => 50,  'probability' => 50],
-            ['name' => 'Negotiation', 'order' => 70,  'probability' => 75],
-            ['name' => 'Won',         'order' => 90,  'probability' => 100],
-            ['name' => 'Lost',        'order' => 100, 'probability' => 0],
+            ['name' => 'New',         'order' => 10,  'probability' => 0,   'is_won' => false, 'is_lost' => false],
+            ['name' => 'Qualified',   'order' => 30,  'probability' => 25,  'is_won' => false, 'is_lost' => false],
+            ['name' => 'Proposal',    'order' => 50,  'probability' => 50,  'is_won' => false, 'is_lost' => false],
+            ['name' => 'Negotiation', 'order' => 70,  'probability' => 75,  'is_won' => false, 'is_lost' => false],
+            ['name' => 'Won',         'order' => 90,  'probability' => 100, 'is_won' => true,  'is_lost' => false],
+            ['name' => 'Lost',        'order' => 100, 'probability' => 0,   'is_won' => false, 'is_lost' => true],
         ];
 
         foreach ($defaultStages as $index => $data) {
@@ -39,6 +39,8 @@ class StageSeeder extends Seeder
                 'order'      => $data['order'],
                 'probability'=> $data['probability'],
                 'is_default' => $index < 4, // first 4 are default
+                'is_won'     => $data['is_won'],
+                'is_lost'    => $data['is_lost'],
             ]));
         }
 

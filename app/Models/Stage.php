@@ -18,6 +18,8 @@ class Stage extends Model
         'order',
         'probability',
         'is_default',
+        'is_won',
+        'is_lost',
     ];
 
     protected function casts(): array
@@ -26,7 +28,25 @@ class Stage extends Model
             'order' => 'integer',
             'probability' => 'integer',
             'is_default' => 'boolean',
+            'is_won' => 'boolean',
+            'is_lost' => 'boolean',
         ];
+    }
+
+    /**
+     * 赢单阶段范围（供 ReportService / 看板统计复用）。
+     */
+    public function scopeWon($query)
+    {
+        return $query->where('is_won', true);
+    }
+
+    /**
+     * 输单阶段范围。
+     */
+    public function scopeLost($query)
+    {
+        return $query->where('is_lost', true);
     }
 
     public function scopeOrdered($query)
