@@ -7,16 +7,16 @@
         </div>
         <div class="flex items-center gap-2">
             <label class="text-sm text-gray-600">{{ __('reports.period_label') }}</label>
-            <select wire:model.live="period" class="border border-gray-300 rounded-lg px-3 py-1.5 text-sm">
+            <select wire:model.live="period" class="border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
                 <option value="3">{{ __('reports.period_3') }}</option>
                 <option value="6">{{ __('reports.period_6') }}</option>
                 <option value="12">{{ __('reports.period_12') }}</option>
             </select>
             <span class="text-sm text-gray-400 ml-2">{{ __('reports.export_label') }}</span>
-            <button wire:click="exportCsv('trend')" class="text-xs px-2 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded transition-colors">{{ __('reports.trend') }}</button>
-            <button wire:click="exportCsv('performance')" class="text-xs px-2 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded transition-colors">{{ __('reports.performance') }}</button>
-            <button wire:click="exportCsv('stage')" class="text-xs px-2 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded transition-colors">{{ __('reports.stage') }}</button>
-            <button wire:click="exportCsv('funnel')" class="text-xs px-2 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded transition-colors">{{ __('reports.funnel') }}</button>
+            <button wire:click="exportCsv('trend')" class="text-xs px-2 py-1.5 bg-white border border-gray-300 hover:bg-gray-50 text-gray-600 rounded-lg transition-colors">{{ __('reports.trend') }}</button>
+            <button wire:click="exportCsv('performance')" class="text-xs px-2 py-1.5 bg-white border border-gray-300 hover:bg-gray-50 text-gray-600 rounded-lg transition-colors">{{ __('reports.performance') }}</button>
+            <button wire:click="exportCsv('stage')" class="text-xs px-2 py-1.5 bg-white border border-gray-300 hover:bg-gray-50 text-gray-600 rounded-lg transition-colors">{{ __('reports.stage') }}</button>
+            <button wire:click="exportCsv('funnel')" class="text-xs px-2 py-1.5 bg-white border border-gray-300 hover:bg-gray-50 text-gray-600 rounded-lg transition-colors">{{ __('reports.funnel') }}</button>
         </div>
     </div>
 
@@ -70,16 +70,16 @@
             <h3 class="text-lg font-semibold text-gray-900">{{ __('reports.performance_title') }}</h3>
         </div>
         @if(count($performance) === 0)
-            <p class="text-gray-500 text-sm text-center py-8">{{ __('reports.no_data') }}</p>
+            <p class="text-gray-500 text-sm text-center px-6 py-12">{{ __('reports.no_data') }}</p>
         @else
             <table class="w-full">
                 <thead class="bg-gray-50">
                     <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">{{ __('reports.owner') }}</th>
-                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">{{ __('reports.opp_count') }}</th>
-                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">{{ __('reports.closed_value') }}</th>
-                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">{{ __('reports.won_count') }}</th>
-                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">{{ __('reports.win_rate') }}</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ __('reports.owner') }}</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">{{ __('reports.opp_count') }}</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">{{ __('reports.closed_value') }}</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">{{ __('reports.won_count') }}</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">{{ __('reports.win_rate') }}</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-100">

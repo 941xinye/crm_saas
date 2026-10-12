@@ -8,25 +8,25 @@
     <div class="bg-white rounded-xl shadow-sm p-4 border border-gray-100">
         <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
             <input wire:model.live="search" type="text" placeholder="{{ __('audit.search_placeholder') }}"
-                   class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500">
-            <select wire:model.live="action_filter" class="border border-gray-300 rounded-lg px-3 py-2 text-sm">
+                   class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+            <select wire:model.live="action_filter" class="border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
                 <option value="">{{ __('audit.filter_all_actions') }}</option>
                 @foreach($actions as $k => $v)
                     <option value="{{ $k }}">{{ $v }}</option>
                 @endforeach
             </select>
-            <select wire:model.live="model_filter" class="border border-gray-300 rounded-lg px-3 py-2 text-sm">
+            <select wire:model.live="model_filter" class="border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
                 <option value="">{{ __('audit.filter_all_models') }}</option>
                 @foreach($models as $k => $v)
                     <option value="{{ $k }}">{{ $v }}</option>
                 @endforeach
             </select>
             <div class="flex gap-2">
-                <input wire:model.live="date_from" type="date" class="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm">
-                <input wire:model.live="date_to" type="date" class="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm">
+                <input wire:model.live="date_from" type="date" class="flex-1 border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                <input wire:model.live="date_to" type="date" class="flex-1 border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
             </div>
             <button wire:click="exportCsv" wire:loading.attr="disabled"
-                    class="ml-auto px-3 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-medium rounded-lg transition-colors whitespace-nowrap">
+                    class="ml-auto px-3 py-2.5 bg-white border border-gray-300 hover:bg-gray-50 text-gray-600 text-sm font-medium rounded-lg transition-colors whitespace-nowrap">
                 {{ __('audit.export_csv') }}
             </button>
         </div>
@@ -37,12 +37,12 @@
         <table class="w-full">
             <thead class="bg-gray-50">
                 <tr>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">{{ __('audit.col_time') }}</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">{{ __('audit.col_action') }}</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">{{ __('audit.col_object') }}</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">{{ __('audit.col_operator') }}</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">IP</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">{{ __('audit.col_detail') }}</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ __('audit.col_time') }}</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ __('audit.col_action') }}</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ __('audit.col_object') }}</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ __('audit.col_operator') }}</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">IP</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ __('audit.col_detail') }}</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-gray-100">
@@ -53,7 +53,7 @@
                         $hasDetail = ($log->before || $log->after) && !empty(array_filter(array_merge($log->before ?? [], $log->after ?? [])));
                     @endphp
                     <tr class="hover:bg-gray-50 {{ $batchRowClass }}" x-data="{ open: false }">
-                        <td class="px-6 py-3 whitespace-nowrap text-sm text-gray-600">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
                             {{ $log->created_at->format('Y-m-d H:i:s') }}
                             @if($log->batch_id)
                                 <div class="mt-0.5 text-[10px] text-purple-500 font-mono">
@@ -61,7 +61,7 @@
                                 </div>
                             @endif
                         </td>
-                        <td class="px-6 py-3 whitespace-nowrap">
+                        <td class="px-6 py-4 whitespace-nowrap">
                             @if($isBatchSummary)
                                 <span class="px-2 py-0.5 text-xs rounded-full bg-purple-100 text-purple-700 font-medium">
                                     {{ __('audit.batch_summary') }}
@@ -83,7 +83,7 @@
                                 <span class="px-2 py-0.5 text-xs rounded-full bg-red-100 text-red-700">{{ __('audit.action_deleted') }}</span>
                             @endif
                         </td>
-                        <td class="px-6 py-3 whitespace-nowrap text-sm">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm">
                             @php
                                 $modelShort = basename(str_replace('\\', '/', $log->auditable_type));
                                 $modelLabel = $models[$log->auditable_type] ?? $modelShort;
@@ -95,10 +95,10 @@
                                 <span class="text-gray-400 text-xs">{{ __('audit.batch_level') }}</span>
                             @endif
                         </td>
-                        <td class="px-6 py-3 whitespace-nowrap text-sm text-gray-700">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
                             {{ $log->user?->name ?? __('misc.system') }}
                         </td>
-                        <td class="px-6 py-3 whitespace-nowrap text-sm text-gray-500 font-mono">{{ $log->ip ?? '-' }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-mono">{{ $log->ip ?? '-' }}</td>
                         <td class="px-6 py-3 text-sm">
                             {{-- 摘要 --}}
                             <div class="flex items-center gap-2">

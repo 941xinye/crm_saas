@@ -71,7 +71,7 @@
                 <span wire:loading.remove>{{ __('companies.save') }}</span>
                 <span wire:loading>{{ __('companies.saving') }}</span>
             </button>
-            <a href="{{ route('companies.index') }}" class="text-gray-600 hover:text-gray-900 font-medium px-4 py-2.5">{{ __('companies.cancel') }}</a>
+            <a href="{{ route('companies.index') }}" class="inline-flex items-center bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 text-sm font-medium px-6 py-2.5 rounded-lg transition-colors">{{ __('companies.cancel') }}</a>
         </div>
     </form>
 </div>

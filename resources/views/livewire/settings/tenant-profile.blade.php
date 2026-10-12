@@ -68,7 +68,7 @@
                     </div>
                 @else
                     <button wire:click="generateLeadFormKey" wire:loading.attr="disabled"
-                            class="bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-medium px-4 py-2 rounded-lg transition-colors">
+                            class="bg-white border border-gray-300 hover:bg-gray-50 text-gray-600 text-sm font-medium px-4 py-2 rounded-lg transition-colors">
                         {{ __('settings_profile.lead_form_generate') }}
                     </button>
                 @endif

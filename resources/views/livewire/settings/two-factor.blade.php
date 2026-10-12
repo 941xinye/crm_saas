@@ -35,7 +35,7 @@
             <p class="text-sm text-gray-500">
                 {{ __('settings_security.enable_intro') }}
             </p>
-            <button wire:click="enable" class="bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium px-5 py-2 rounded-lg">
+            <button wire:click="enable" class="bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors">
                 {{ __('settings_security.enable_btn') }}
             </button>
         @endif
@@ -53,7 +53,7 @@
                     <input type="text" wire:model="code" inputmode="numeric" autocomplete="one-time-code"
                            class="w-40 border border-gray-300 rounded-lg px-3 py-2 text-sm font-mono tracking-widest text-center"
                            placeholder="{{ __('settings_security.code_placeholder') }}">
-                    <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium px-5 py-2 rounded-lg">
+                    <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors">
                         {{ __('settings_security.confirm_btn') }}
                     </button>
                 </form>
@@ -72,7 +72,7 @@
                 <form wire:submit="regenerate" class="flex gap-3">
                     <input type="password" wire:model="password" class="w-56 border border-gray-300 rounded-lg px-3 py-2 text-sm"
                            placeholder="{{ __('settings_security.current_password') }}">
-                    <button type="submit" class="bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-medium px-5 py-2 rounded-lg">
+                    <button type="submit" class="bg-white border border-gray-300 hover:bg-gray-50 text-gray-600 text-sm font-medium px-4 py-2 rounded-lg transition-colors">
                         {{ __('settings_security.regenerate_btn') }}
                     </button>
                 </form>
@@ -85,7 +85,7 @@
                 <form wire:submit="disable" class="flex gap-3">
                     <input type="password" wire:model="password" class="w-56 border border-gray-300 rounded-lg px-3 py-2 text-sm"
                            placeholder="{{ __('settings_security.current_password') }}">
-                    <button type="submit" class="bg-red-600 hover:bg-red-700 text-white text-sm font-medium px-5 py-2 rounded-lg">
+                    <button type="submit" class="bg-red-600 hover:bg-red-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors">
                         {{ __('settings_security.disable_btn') }}
                     </button>
                 </form>

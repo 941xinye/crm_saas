@@ -15,36 +15,36 @@
         @foreach($rows as $index => $row)
             <div class="grid grid-cols-12 gap-3 items-end border-b border-gray-50 pb-4">
                 <div class="col-span-2">
-                    <label class="block text-xs text-gray-500 mb-1">{{ __('settings_customfields.entity') }}</label>
-                    <select wire:model="rows.{{ $index }}.entity" class="w-full px-2 py-2 border border-gray-300 rounded-lg text-sm">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">{{ __('settings_customfields.entity') }}</label>
+                    <select wire:model="rows.{{ $index }}.entity" class="w-full px-2 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
                         @foreach($entities as $entityKey => $entityLabel)
                             <option value="{{ $entityKey }}">{{ $entityLabel }}</option>
                         @endforeach
                     </select>
                 </div>
                 <div class="col-span-2">
-                    <label class="block text-xs text-gray-500 mb-1">{{ __('settings_customfields.key_label') }}</label>
-                    <input wire:model="rows.{{ $index }}.key" type="text" placeholder="{{ __('settings_customfields.key_placeholder') }}" class="w-full px-2 py-2 border border-gray-300 rounded-lg text-sm">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">{{ __('settings_customfields.key_label') }}</label>
+                    <input wire:model="rows.{{ $index }}.key" type="text" placeholder="{{ __('settings_customfields.key_placeholder') }}" class="w-full px-2 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
                 </div>
                 <div class="col-span-2">
-                    <label class="block text-xs text-gray-500 mb-1">{{ __('settings_customfields.display_name') }}</label>
-                    <input wire:model="rows.{{ $index }}.label" type="text" placeholder="{{ __('settings_customfields.display_name_placeholder') }}" class="w-full px-2 py-2 border border-gray-300 rounded-lg text-sm">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">{{ __('settings_customfields.display_name') }}</label>
+                    <input wire:model="rows.{{ $index }}.label" type="text" placeholder="{{ __('settings_customfields.display_name_placeholder') }}" class="w-full px-2 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
                 </div>
                 <div class="col-span-2">
-                    <label class="block text-xs text-gray-500 mb-1">{{ __('settings_customfields.type') }}</label>
-                    <select wire:model="rows.{{ $index }}.type" class="w-full px-2 py-2 border border-gray-300 rounded-lg text-sm">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">{{ __('settings_customfields.type') }}</label>
+                    <select wire:model="rows.{{ $index }}.type" class="w-full px-2 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
                         @foreach($types as $typeKey => $typeLabel)
                             <option value="{{ $typeKey }}">{{ $typeLabel }}</option>
                         @endforeach
                     </select>
                 </div>
                 <div class="col-span-2">
-                    <label class="block text-xs text-gray-500 mb-1">{{ __('settings_customfields.options_label') }}</label>
-                    <input wire:model="rows.{{ $index }}.options" type="text" placeholder="{{ __('settings_customfields.options_placeholder') }}" class="w-full px-2 py-2 border border-gray-300 rounded-lg text-sm">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">{{ __('settings_customfields.options_label') }}</label>
+                    <input wire:model="rows.{{ $index }}.options" type="text" placeholder="{{ __('settings_customfields.options_placeholder') }}" class="w-full px-2 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
                 </div>
                 <div class="col-span-1">
                     <label class="flex items-center gap-1 text-xs text-gray-600 whitespace-nowrap">
-                        <input wire:model="rows.{{ $index }}.required" type="checkbox" class="rounded border-gray-300"> {{ __('settings_customfields.required') }}
+                        <input wire:model="rows.{{ $index }}.required" type="checkbox" class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"> {{ __('settings_customfields.required') }}
                     </label>
                 </div>
                 <div class="col-span-1 flex justify-end">

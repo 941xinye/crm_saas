@@ -72,7 +72,7 @@
         @endif
         @if($tenant->plan !== 'free' && $stripeEnabled && $isAdmin)
             <button wire:click="portal" wire:loading.attr="disabled"
-                    class="mt-3 px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-medium rounded transition-colors">
+                    class="mt-3 px-3 py-1.5 bg-white border border-gray-300 hover:bg-gray-50 text-gray-600 text-xs font-medium rounded transition-colors">
                 {{ __('settings_subscription.manage_billing') }}
             </button>
         @endif

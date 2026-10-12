@@ -2,6 +2,7 @@
 
 // English translations: settings_tokens
 return [
+    'title' => 'API Tokens',
     'subtitle' => 'Create and manage tokens for the REST API. Send them with requests as',
     'new_token_title' => 'Token created, please save it now (it cannot be viewed again after closing):',
     'name_placeholder' => 'Token name (e.g. Report integration)',

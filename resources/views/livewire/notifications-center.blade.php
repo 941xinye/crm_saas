@@ -4,13 +4,13 @@
         <div class="flex gap-2 text-sm">
             @if($unreadCount > 0)
                 <button wire:click="markAllAsRead"
-                        class="px-3 py-1.5 text-indigo-600 hover:text-indigo-700 border border-indigo-200 hover:bg-indigo-50 rounded-lg">
+                        class="px-3 py-2 bg-white border border-gray-300 hover:bg-gray-50 text-gray-600 rounded-lg transition-colors">
                     {{ __('misc.mark_all_read') }}
                 </button>
             @endif
             @if($notifications->count() > 0)
                 <button wire:confirm="{{ __('misc.confirm_clear_all') }}" wire:click="clearAll"
-                        class="px-3 py-1.5 text-red-600 hover:text-red-700 border border-red-200 hover:bg-red-50 rounded-lg">
+                        class="px-3 py-2 bg-white border border-red-200 hover:bg-red-50 text-red-600 rounded-lg transition-colors">
                     {{ __('misc.clear_all') }}
                 </button>
             @endif

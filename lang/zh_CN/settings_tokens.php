@@ -2,6 +2,7 @@
 
 // 中文（简体）翻译：设置 - API Tokens
 return [
+    'title' => 'API Tokens',
     'subtitle' => '创建与管理访问 REST API 的令牌，请求时携带',
     'new_token_title' => 'Token 已创建，请立即保存（关闭后将无法再次查看）：',
     'name_placeholder' => 'Token 名称（如：报表集成）',

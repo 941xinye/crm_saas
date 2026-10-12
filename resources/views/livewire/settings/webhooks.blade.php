@@ -38,14 +38,14 @@
         <form wire:submit="save" class="space-y-4">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                    <label class="block text-xs font-medium text-gray-500 mb-1">{{ __('settings_webhooks.name_label') }}</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">{{ __('settings_webhooks.name_label') }}</label>
                     <input wire:model="name" type="text"
                            class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                            placeholder="{{ __('settings_webhooks.name_placeholder') }}">
                     @error('name') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
                 </div>
                 <div>
-                    <label class="block text-xs font-medium text-gray-500 mb-1">{{ __('settings_webhooks.url_label') }}</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">{{ __('settings_webhooks.url_label') }}</label>
                     <input wire:model="url" type="url"
                            class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                            placeholder="https://example.com/webhooks/crm">
@@ -54,7 +54,7 @@
             </div>
 
             <div>
-                <label class="block text-xs font-medium text-gray-500 mb-2">{{ __('settings_webhooks.events_label') }}</label>
+                <label class="block text-sm font-medium text-gray-700 mb-2">{{ __('settings_webhooks.events_label') }}</label>
                 <div class="border border-gray-200 rounded-lg overflow-hidden">
                     <table class="w-full text-sm">
                         <thead class="bg-gray-50">
@@ -98,7 +98,7 @@
                     {{ __('settings_webhooks.save') }}
                 </button>
                 <button type="button" wire:click="closeForm"
-                        class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-medium rounded-lg transition-colors">
+                        class="px-4 py-2 bg-white border border-gray-300 hover:bg-gray-50 text-gray-600 text-sm font-medium rounded-lg transition-colors">
                     {{ __('settings_webhooks.cancel') }}
                 </button>
             </div>
@@ -114,27 +114,27 @@
         <table class="w-full">
             <thead class="bg-gray-50">
                 <tr>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">{{ __('settings_webhooks.name_label') }}</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">{{ __('settings_webhooks.url_label') }}</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">{{ __('settings_webhooks.events_label') }}</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">{{ __('settings_webhooks.col_status') }}</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">{{ __('settings_webhooks.col_last_sent') }}</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ __('settings_webhooks.name_label') }}</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ __('settings_webhooks.url_label') }}</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ __('settings_webhooks.events_label') }}</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ __('settings_webhooks.col_status') }}</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ __('settings_webhooks.col_last_sent') }}</th>
                     <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">{{ __('settings_webhooks.col_actions') }}</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-gray-100">
                 @forelse($webhooks as $webhook)
                 <tr class="hover:bg-gray-50">
-                    <td class="px-6 py-3 text-sm font-medium text-gray-800">{{ $webhook->name }}</td>
-                    <td class="px-6 py-3 text-sm text-gray-500 max-w-[220px] truncate" title="{{ $webhook->url }}">
+                    <td class="px-6 py-4 text-sm font-medium text-gray-800">{{ $webhook->name }}</td>
+                    <td class="px-6 py-4 text-sm text-gray-500 max-w-[220px] truncate" title="{{ $webhook->url }}">
                         {{ $webhook->url }}
                     </td>
-                    <td class="px-6 py-3 text-sm text-gray-600">
+                    <td class="px-6 py-4 text-sm text-gray-600">
                         <span class="px-2 py-0.5 text-xs rounded-full bg-indigo-50 text-indigo-700">
                             {{ __('settings_webhooks.event_count', ['count' => count($webhook->events ?? [])]) }}
                         </span>
                     </td>
-                    <td class="px-6 py-3 text-sm">
+                    <td class="px-6 py-4 text-sm">
                         @if($webhook->is_active)
                         <span class="px-2 py-0.5 text-xs rounded-full bg-green-100 text-green-700">{{ __('settings_webhooks.enable') }}</span>
                         @else
@@ -147,10 +147,10 @@
                         </span>
                         @endif
                     </td>
-                    <td class="px-6 py-3 text-sm text-gray-500">
+                    <td class="px-6 py-4 text-sm text-gray-500">
                         {{ $webhook->last_sent_at?->format('m-d H:i') ?? __('settings_webhooks.never') }}
                     </td>
-                    <td class="px-6 py-3 text-right space-x-2 whitespace-nowrap">
+                    <td class="px-6 py-4 text-right space-x-2 whitespace-nowrap">
                         @if($canManage)
                         <button wire:click="sendTest({{ $webhook->id }})" wire:loading.attr="disabled"
                                 class="text-indigo-600 hover:text-indigo-900 text-sm">{{ __('settings_webhooks.test') }}</button>
@@ -159,7 +159,7 @@
                         <button wire:confirm="{{ __('settings_webhooks.confirm_reset_secret') }}" wire:click="resetSecret({{ $webhook->id }})"
                                 class="text-amber-600 hover:text-amber-900 text-sm">{{ __('settings_webhooks.reset_secret') }}</button>
                         <button wire:click="toggleActive({{ $webhook->id }})"
-                                class="text-blue-600 hover:text-blue-900 text-sm">
+                                class="text-indigo-600 hover:text-indigo-900 text-sm">
                             {{ $webhook->is_active ? __('settings_webhooks.disable') : __('settings_webhooks.enable') }}
                         </button>
                         <button wire:confirm="{{ __('settings_webhooks.confirm_delete') }}" wire:click="delete({{ $webhook->id }})"
@@ -171,7 +171,7 @@
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="6" class="px-6 py-8 text-center text-sm text-gray-400">
+                    <td colspan="6" class="px-6 py-12 text-center text-sm text-gray-500">
                         {{ __('settings_webhooks.empty_state') }}
                     </td>
                 </tr>

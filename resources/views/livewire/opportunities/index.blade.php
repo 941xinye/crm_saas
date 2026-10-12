@@ -105,7 +105,7 @@
                 </select>
                 <button wire:click="bulkUpdateOwner"
                         wire:confirm="{{ __('opportunities.index_bulk_owner_confirm') }}"
-                        class="px-3 py-1.5 text-xs bg-blue-600 hover:bg-blue-700 text-white rounded">
+                        class="px-3 py-1.5 text-xs bg-indigo-600 hover:bg-indigo-700 text-white rounded">
                     {{ __('opportunities.index_bulk_assign') }}
                 </button>
                 <span class="w-px h-5 bg-indigo-200"></span>

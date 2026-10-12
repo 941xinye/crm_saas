@@ -87,7 +87,7 @@
                             class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-6 py-2.5 rounded-lg">{{ __('white_label.save_btn') }}</button>
                     @if($enabled)
                         <button type="button" wire:click="sendTest" wire:loading.attr="disabled"
-                                class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium px-5 py-2.5 rounded-lg transition-colors">
+                                class="bg-white border border-gray-300 hover:bg-gray-50 text-gray-600 text-sm font-medium px-6 py-2.5 rounded-lg transition-colors">
                             {{ __('white_label.test_mail_btn') }}
                         </button>
                         <button type="button" wire:click="disable" wire:confirm="{{ __('white_label.disable_confirm') }}" wire:loading.attr="disabled"
