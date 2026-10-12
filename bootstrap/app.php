@@ -36,4 +36,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $exceptions->shouldRenderJsonWhen(
             fn (Request $request) => $request->is('api/*') || $request->expectsJson(),
         );
+
+        // 错误监控告警：5xx 级异常推送群机器人（冷却去重 + 无配置静默降级，见 docs/monitoring.md）
+        $exceptions->reportable(fn (\Throwable $e) => app(\App\Services\ErrorReporter::class)->report($e));
     })->create();

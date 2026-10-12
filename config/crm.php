@@ -51,6 +51,14 @@ return [
     // 为空时完全禁用，走「登录用户所属租户」的默认逻辑（本地开发/测试无需配置）
     'subdomain_root' => env('CRM_SUBDOMAIN_ROOT'),
 
+    // 错误监控告警（5xx 异常 → 群机器人，复用 reminder.robot 的 type/url 配置）
+    // 见 app/Services/ErrorReporter.php 与 docs/monitoring.md
+    'error_alerts' => [
+        'enabled' => env('CRM_ERROR_ALERTS', true),
+        // 同一错误签名（类+文件+行）的告警冷却期（秒）
+        'cooldown' => env('CRM_ERROR_ALERT_COOLDOWN', 600),
+    ],
+
     // 审计日志保留策略（crm:prune-audit-logs 定时清理）
     'audit' => [
         'retention_days' => env('CRM_AUDIT_RETENTION_DAYS', 365),

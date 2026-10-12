@@ -145,6 +145,7 @@ tar -xzf /backup/attachments_2026-10-12.tar.gz -C /var/www/crm/storage/app
 
 | 项 | 方式 |
 |----|------|
+| 应用异常 | `ErrorReporter` 自动推送群机器人（5xx 告警 + 冷却去重，见 [monitoring.md](monitoring.md)） |
 | 队列失败 | `crm:health-check`（每小时，站内信告警平台超管，24h 冷却去重） |
 | 队列积压 | `php artisan queue:failed` 人工排查；`queue:retry all` 重试 |
 | 过期导出 | `crm:health-check` 自动清理 `storage/app/tenant-exports` 超 24h 的 GDPR ZIP |
