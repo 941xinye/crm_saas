@@ -38,7 +38,10 @@
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">租户名称</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Slug</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">计划</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">试用到期</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">用户数</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">配额使用率</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">最近活跃</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">状态</th>
                     <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
                 </tr>
@@ -49,17 +52,60 @@
                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $tenant->name }}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $tenant->slug }}</td>
                         <td class="px-6 py-4 whitespace-nowrap">
-                            @if($tenant->plan === 'free') <span class="px-2 py-1 text-xs bg-gray-100 text-gray-700 rounded-full">免费</span>
-                            @elseif($tenant->plan === 'pro') <span class="px-2 py-1 text-xs bg-blue-100 text-blue-700 rounded-full">专业</span>
-                            @elseif($tenant->plan === 'enterprise') <span class="px-2 py-1 text-xs bg-purple-100 text-purple-700 rounded-full">企业</span>
-                            @else {{ $tenant->plan }} @endif
+                            <div class="flex items-center gap-1">
+                                @foreach(['free', 'pro', 'enterprise'] as $planKey)
+                                    <button wire:confirm="确定要将「{{ $tenant->name }}」切换至{{ $planNames[$planKey] }}吗？"
+                                            wire:click="changePlan({{ $tenant->id }}, '{{ $planKey }}')"
+                                            {{ $tenant->plan === $planKey ? 'disabled' : '' }}
+                                            class="px-2 py-1 text-xs rounded-full transition-colors
+                                                   {{ $tenant->plan === $planKey
+                                                       ? 'bg-indigo-600 text-white cursor-default'
+                                                       : 'bg-gray-100 text-gray-600 hover:bg-indigo-100 hover:text-indigo-700' }}">
+                                        {{ $planNames[$planKey] }}
+                                    </button>
+                                @endforeach
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            @if($tenant->plan === 'free' && $tenant->trial_ends_at)
+                                @if($tenant->trial_ends_at->isFuture())
+                                    {{ $tenant->trial_ends_at->format('Y-m-d') }}
+                                @else
+                                    <span class="text-red-600">已到期</span>
+                                @endif
+                            @elseif($tenant->plan === 'free')
+                                <span class="text-red-600">已到期</span>
+                            @else
+                                —
+                            @endif
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{{ $tenant->users_count }}</td>
+                        <td class="px-6 py-4 text-xs text-gray-600">
+                            <div class="flex flex-wrap gap-x-3 gap-y-1">
+                                @foreach($tenant->usage as $usage)
+                                    <span class="{{ $usage['pct'] >= 100 ? 'text-red-600 font-semibold' : ($usage['pct'] >= 80 ? 'text-amber-600' : '') }}">
+                                        {{ $usage['label'] }} {{ $usage['current'] }}/{{ $usage['quota'] < 0 ? '不限' : $usage['quota'] }}
+                                    </span>
+                                @endforeach
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            @if($tenant->last_activity_at)
+                                {{ \Illuminate\Support\Carbon::parse($tenant->last_activity_at)->format('Y-m-d H:i') }}
+                            @else
+                                <span class="text-gray-300">暂无活动</span>
+                            @endif
+                        </td>
                         <td class="px-6 py-4 whitespace-nowrap">
                             @if($tenant->is_active) <span class="px-2 py-1 text-xs bg-green-100 text-green-700 rounded-full">活跃</span>
                             @else <span class="px-2 py-1 text-xs bg-red-100 text-red-700 rounded-full">已冻结</span> @endif
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                            <button wire:click="exportData({{ $tenant->id }})"
+                                    class="text-indigo-600 hover:text-indigo-900 mr-3">导出数据</button>
+                            <button wire:confirm="确定清空「{{ $tenant->name }}」的全部业务数据？此操作不可恢复，审计日志将保留。"
+                                    wire:click="purgeData({{ $tenant->id }})"
+                                    class="text-red-600 hover:text-red-900 mr-3">清空数据</button>
                             <button wire:confirm="确定要{{ $tenant->is_active ? '冻结' : '激活' }}该租户吗？"
                                     wire:click="toggleActive({{ $tenant->id }})"
                                     class="{{ $tenant->is_active ? 'text-red-600 hover:text-red-900' : 'text-green-600 hover:text-green-900' }}">
@@ -68,7 +114,7 @@
                         </td>
                     </tr>
                 @empty
-                    <tr><td colspan="6" class="px-6 py-12 text-center text-gray-500 text-sm">暂无租户</td></tr>
+                    <tr><td colspan="9" class="px-6 py-12 text-center text-gray-500 text-sm">暂无租户</td></tr>
                 @endforelse
             </tbody>
         </table>

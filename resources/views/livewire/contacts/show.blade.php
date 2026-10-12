@@ -23,4 +23,26 @@
             <div><dt class="text-sm text-gray-500">所属公司</dt><dd class="text-sm text-gray-900 font-medium">{{ $contact->company?->name ?? '-' }}</dd></div>
         </dl>
     </div>
+
+    <!-- AI 活动摘要 -->
+    @livewire('activity-summary', ['entityType' => \App\Models\Contact::class, 'entityId' => $contact->id], key('contact-summary-'.$contact->id))
+
+    <!-- 自定义字段（动态定义） -->
+    @include('livewire.partials.custom-fields-show', ['entity' => 'contact', 'model' => $contact])
+
+    <!-- 跟进时间线 -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-100">
+            <h3 class="text-sm font-semibold text-gray-900 uppercase tracking-wider">跟进时间线</h3>
+        </div>
+        @include('livewire.partials.activity-timeline')
+    </div>
+
+    <!-- 附件 -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-100">
+            <h3 class="text-sm font-semibold text-gray-900 uppercase tracking-wider">附件</h3>
+        </div>
+        @livewire('attachments.attachment-panel', ['attachableType' => \App\Models\Contact::class, 'attachableId' => $contact->id], key('contact-attachments-'.$contact->id))
+    </div>
 </div>

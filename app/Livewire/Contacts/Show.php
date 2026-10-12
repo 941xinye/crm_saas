@@ -11,7 +11,10 @@ class Show extends Component
 
     public function render()
     {
-        return view('livewire.contacts.show')
-            ->layout('layouts.app', ['title' => $this->contact->full_name]);
+        $activities = $this->contact->activities()->with('user')->latest()->take(20)->get();
+
+        return view('livewire.contacts.show', [
+            'activities' => $activities,
+        ])->layout('layouts.app', ['title' => $this->contact->full_name]);
     }
 }

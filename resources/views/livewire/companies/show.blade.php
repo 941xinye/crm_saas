@@ -79,4 +79,26 @@
             </div>
         </div>
     </div>
+
+    <!-- AI 活动摘要 -->
+    @livewire('activity-summary', ['entityType' => \App\Models\Company::class, 'entityId' => $company->id], key('company-summary-'.$company->id))
+
+    <!-- 自定义字段（动态定义） -->
+    @include('livewire.partials.custom-fields-show', ['entity' => 'company', 'model' => $company])
+
+    <!-- 跟进时间线 -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-100">
+            <h3 class="text-sm font-semibold text-gray-900 uppercase tracking-wider">跟进时间线</h3>
+        </div>
+        @include('livewire.partials.activity-timeline')
+    </div>
+
+    <!-- 附件 -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-100">
+            <h3 class="text-sm font-semibold text-gray-900 uppercase tracking-wider">附件</h3>
+        </div>
+        @livewire('attachments.attachment-panel', ['attachableType' => \App\Models\Company::class, 'attachableId' => $company->id], key('company-attachments-'.$company->id))
+    </div>
 </div>

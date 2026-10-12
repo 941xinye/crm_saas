@@ -7,9 +7,28 @@
                 <span class="text-gray-700 font-medium">{{ $lead->name }}</span>
             </nav>
             <h1 class="text-2xl font-bold text-gray-900">{{ $lead->name }}</h1>
-            <p class="text-sm text-gray-500 mt-1">公司：{{ $lead->company_name ?? '-' }} · 状态：{{ $lead->status }}</p>
+            <p class="text-sm text-gray-500 mt-1">
+                公司：{{ $lead->company_name ?? '-' }} · 状态：
+                @if($lead->status === 'new')
+                    <span class="px-2 py-0.5 text-xs rounded-full bg-blue-100 text-blue-700">新线索</span>
+                @elseif($lead->status === 'contacted')
+                    <span class="px-2 py-0.5 text-xs rounded-full bg-yellow-100 text-yellow-700">已联系</span>
+                @elseif($lead->status === 'qualified')
+                    <span class="px-2 py-0.5 text-xs rounded-full bg-indigo-100 text-indigo-700">已验证</span>
+                @elseif($lead->status === 'converted')
+                    <span class="px-2 py-0.5 text-xs rounded-full bg-green-100 text-green-700">已转化</span>
+                @elseif($lead->status === 'lost')
+                    <span class="px-2 py-0.5 text-xs rounded-full bg-red-100 text-red-700">已丢失</span>
+                @else
+                    {{ $lead->status }}
+                @endif
+            </p>
         </div>
         <div class="space-x-2">
+            @if(!in_array($lead->status, ['converted', 'lost']))
+                <a href="{{ route('leads.convert', $lead) }}"
+                   class="inline-flex items-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-lg">转化为客户</a>
+            @endif
             <a href="{{ route('leads.edit', $lead) }}" class="inline-flex items-center px-4 py-2 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 text-sm font-medium rounded-lg">编辑</a>
         </div>
     </div>

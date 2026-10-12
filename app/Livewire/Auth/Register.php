@@ -36,6 +36,7 @@ class Register extends Component
             'slug' => $tenantSlug,
             'plan' => 'free',
             'is_active' => true,
+            'trial_ends_at' => now()->addDays((int) config('plans.free.trial_days', 14)),
         ]);
 
         $user = User::create([
@@ -47,10 +48,21 @@ class Register extends Component
             'is_platform_admin' => false,
         ]);
 
-        Auth::login($user);
-        request()->session()->regenerate();
+        // 触发 Registered 事件，框架监听器自动发送邮箱验证通知
+        event(new \Illuminate\Auth\Events\Registered($user));
 
-        $this->redirect(route('dashboard'), navigate: true);
+        Auth::login($user);
+        // 测试/控制台等无会话环境跳过重建（生产 Web 请求必有会话）
+        if (request()->hasSession()) {
+            request()->session()->regenerate();
+        }
+
+        // 未验证邮箱时跳转到验证提示页，已验证（测试环境）直接进仪表板
+        if ($user instanceof \Illuminate\Contracts\Auth\MustVerifyEmail && ! $user->hasVerifiedEmail()) {
+            $this->redirect(route('verification.notice'), navigate: true);
+        } else {
+            $this->redirect(route('dashboard'), navigate: true);
+        }
     }
 
     public function render()

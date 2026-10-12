@@ -1,0 +1,29 @@
+<?php
+
+// 中文（简体）翻译：侧边栏导航
+return [
+    'platform_tenants' => '租户管理',
+    'platform_tenants_hint' => '管理所有租户、启停与套餐切换',
+    'dashboard' => '控制台',
+    'dashboard_hint' => '业务概览：统计卡片、商机阶段分布与最近动态',
+    'reports' => '数据报表',
+    'reports_hint' => '销售漏斗、按人业绩、月度趋势与阶段分布',
+    'audit_logs' => '审计日志',
+    'audit_logs_hint' => '查看数据变更历史、批量操作与用户轨迹',
+    'companies' => '公司',
+    'companies_hint' => '管理客户公司、负责人与关联联系人',
+    'contacts' => '联系人',
+    'contacts_hint' => '管理客户联系人、职位与所属公司',
+    'leads' => '线索',
+    'leads_hint' => '潜在客户线索，可转化为联系人+商机',
+    'opportunities' => '商机',
+    'opportunities_hint' => '销售商机管理：阶段、金额、预计成交日',
+    'board' => '商机看板',
+    'board_hint' => '看板视图：按阶段分列，支持拖拽改阶段',
+    'stages' => '商机阶段',
+    'stages_hint' => '配置商机阶段、赢/输标记与排序（影响报表赢率统计）',
+    'activities' => '活动',
+    'activities_hint' => '日程、通话、会议等活动，可关联商机/联系人',
+    'settings' => '设置',
+    'settings_hint' => '租户资料、团队成员、套餐订阅',
+];

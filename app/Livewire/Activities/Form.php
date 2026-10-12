@@ -3,7 +3,7 @@
 namespace App\Livewire\Activities;
 
 use App\Models\Activity;
-use App\Models\User;
+use App\Services\Tenancy;
 use Livewire\Component;
 
 class Form extends Component
@@ -37,7 +37,7 @@ class Form extends Component
             'subject' => ['required', 'string', 'max:255'],
             'notes' => ['nullable', 'string'],
             'scheduled_at' => ['nullable', 'date'],
-            'user_id' => ['nullable', 'exists:users,id'],
+            'user_id' => ['nullable', app(Tenancy::class)->existsRule('users')],
         ];
     }
 
@@ -49,14 +49,14 @@ class Form extends Component
             'notes' => $this->notes, 'scheduled_at' => $this->scheduled_at,
             'user_id' => $this->user_id,
         ];
-        if ($this->activity) { $this->activity->update($data); session()->flash('success', '活动已更新'); }
+        if ($this->activity->exists) { $this->activity->update($data); session()->flash('success', '活动已更新'); }
         else { Activity::create($data); session()->flash('success', '活动已创建'); }
         $this->redirect(route('activities.index'), navigate: true);
     }
 
     public function render()
     {
-        $users = User::orderBy('name')->get();
+        $users = app(Tenancy::class)->users()->orderBy('name')->get();
         return view('livewire.activities.form', ['users' => $users])
             ->layout('layouts.app', ['title' => ($this->activity ? '编辑' : '新建') . '活动']);
     }

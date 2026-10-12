@@ -55,6 +55,16 @@
             @error('owner_id') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
         </div>
 
+        @if($duplicateWarning)
+            <div class="bg-amber-50 border border-amber-200 rounded-lg p-3 flex items-start gap-2">
+                <svg class="w-5 h-5 text-amber-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M5 19h14a2 2 0 001.153-3.592L14.153 5.592A2 2 0 0012 5.592 2 2 0 009.847 5.592L3.847 15.408A2 2 0 005 19z"/></svg>
+                <p class="text-sm text-amber-700">{{ $duplicateWarning }}</p>
+            </div>
+        @endif
+
+        <!-- 自定义字段（动态定义） -->
+        @include('livewire.partials.custom-fields-inputs', ['entity' => 'company'])
+
         <!-- 按钮 -->
         <div class="flex items-center space-x-3 pt-4">
             <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-6 py-2.5 rounded-lg transition-colors disabled:opacity-50" wire:loading.attr="disabled">

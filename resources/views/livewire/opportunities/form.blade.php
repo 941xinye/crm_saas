@@ -60,6 +60,9 @@
             </div>
         </div>
 
+        <!-- 自定义字段（动态定义） -->
+        @include('livewire.partials.custom-fields-inputs', ['entity' => 'opportunity'])
+
         <div class="flex items-center space-x-3 pt-4">
             <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-6 py-2.5 rounded-lg disabled:opacity-50" wire:loading.attr="disabled">
                 <span wire:loading.remove>保存</span><span wire:loading>保存中...</span>

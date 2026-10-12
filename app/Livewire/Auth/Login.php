@@ -3,6 +3,7 @@
 namespace App\Livewire\Auth;
 
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
@@ -35,7 +36,9 @@ class Login extends Component
             ]);
         }
 
-        if (! Auth::attempt(['email' => $this->email, 'password' => $this->password], $this->remember)) {
+        $user = \App\Models\User::where('email', $this->email)->first();
+
+        if (! $user || ! Hash::check($this->password, $user->password)) {
             RateLimiter::hit($throttleKey);
 
             throw ValidationException::withMessages([
@@ -43,8 +46,24 @@ class Login extends Component
             ]);
         }
 
+        // 已启用两步验证：会话仅暂存用户 ID，待挑战页校验动态码后才建立登录态
+        if ($user->hasTwoFactorEnabled()) {
+            RateLimiter::clear($throttleKey);
+            session([
+                '2fa:user:id' => $user->id,
+                '2fa:remember' => $this->remember,
+            ]);
+            session()->regenerate();
+
+            $this->redirect(route('two-factor.challenge'), navigate: true);
+
+            return;
+        }
+
+        Auth::login($user, $this->remember);
+
         RateLimiter::clear($throttleKey);
-        request()->session()->regenerate();
+        session()->regenerate();
 
         $this->redirect(route('dashboard'), navigate: true);
     }

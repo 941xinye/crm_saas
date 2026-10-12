@@ -4,6 +4,9 @@ namespace App\Livewire\Contacts;
 
 use App\Models\Company;
 use App\Models\Contact;
+use App\Services\CustomFieldService;
+use App\Services\PlanService;
+use App\Services\Tenancy;
 use Livewire\Component;
 
 class Form extends Component
@@ -15,6 +18,10 @@ class Form extends Component
     public string $phone = '';
     public string $position = '';
     public ?int $company_id = null;
+    /** 自定义字段值（key => value，动态定义见 CustomFieldService） */
+    public array $custom_fields = [];
+    /** 同邮箱联系人查重提示（非阻塞，仅警告；同租户邮箱有唯一约束） */
+    public ?string $duplicateWarning = null;
 
     public function mount(?Contact $contact = null): void
     {
@@ -27,6 +34,30 @@ class Form extends Component
             $this->position = $contact->position ?? '';
             $this->company_id = $contact->company_id;
         }
+
+        $this->custom_fields = $this->contact?->custom_fields ?? [];
+    }
+
+    /**
+     * 邮箱实时查重（租户内精确匹配，编辑时排除自身；emails 表级唯一 (tenant_id, email)）。
+     */
+    public function updatedEmail(): void
+    {
+        $email = trim($this->email);
+
+        if ($email === '') {
+            $this->duplicateWarning = null;
+            return;
+        }
+
+        $query = Contact::where('email', $email);
+        if ($this->contact?->exists) {
+            $query->whereKeyNot($this->contact->id);
+        }
+
+        $this->duplicateWarning = $query->exists()
+            ? "租户内已存在邮箱为 {$email} 的联系人（邮箱唯一，保存将被拒绝）"
+            : null;
     }
 
     public function rules(): array
@@ -37,7 +68,8 @@ class Form extends Component
             'email' => ['nullable', 'email', 'max:255'],
             'phone' => ['nullable', 'string', 'max:50'],
             'position' => ['nullable', 'string', 'max:255'],
-            'company_id' => ['nullable', 'exists:companies,id'],
+            'company_id' => ['nullable', app(Tenancy::class)->existsRule('companies')],
+            ...app(CustomFieldService::class)->validationRules('contact'),
         ];
     }
 
@@ -51,12 +83,14 @@ class Form extends Component
             'phone' => $this->phone,
             'position' => $this->position,
             'company_id' => $this->company_id,
+            'custom_fields' => app(CustomFieldService::class)->sanitizeValues('contact', $this->custom_fields),
         ];
 
-        if ($this->contact) {
+        if ($this->contact->exists) {
             $this->contact->update($data);
             session()->flash('success', '联系人已更新');
         } else {
+            app(PlanService::class)->ensureCanCreate(app(Tenancy::class)->current(), 'contacts');
             Contact::create($data);
             session()->flash('success', '联系人已创建');
         }
