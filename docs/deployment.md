@@ -6,7 +6,7 @@
 
 | 组件 | 版本 | 用途 |
 |------|------|------|
-| PHP | 8.3+ | 扩展：pdo_mysql, mbstring, zip, gd（缩略图）, bcmath, intl |
+| PHP | 8.4+ | 扩展：pdo_mysql, mbstring, zip, gd（缩略图）, bcmath, intl |
 | MySQL | 8.4+ | 业务数据 |
 | Composer | 2.x | 依赖安装 |
 | Node.js | 20+ | 前端构建（Vite） |
@@ -71,7 +71,7 @@ server {
     location / { try_files $uri $uri/ /index.php?$query_string; }
 
     location ~ \.php$ {
-        fastcgi_pass unix:/run/php/php8.3-fpm.sock;
+        fastcgi_pass unix:/run/php/php8.4-fpm.sock;
         fastcgi_param SCRIPT_FILENAME $realpath_root$fastcgi_script_name;
         include fastcgi_params;
     }
@@ -151,7 +151,7 @@ tar -xzf /backup/attachments_2026-10-12.tar.gz -C /var/www/crm/storage/app
 | 队列积压 | `php artisan queue:failed` 人工排查；`queue:retry all` 重试 |
 | 过期导出 | `crm:health-check` 自动清理 `storage/app/tenant-exports` 超 24h 的 GDPR ZIP |
 | 应用日志 | `storage/logs/laravel.log`（工作流/LLM/Webhook 降级异常在此旁路记录） |
-| 进程 | Supervisor status / `systemctl status php8.3-fpm` |
+| 进程 | Supervisor status / `systemctl status php8.4-fpm` |
 
 ## 八、上线检查清单
 

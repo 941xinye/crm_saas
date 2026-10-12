@@ -7,7 +7,7 @@
 | 分类 | 技术 |
 |------|------|
 | 后端框架 | Laravel 13.17 |
-| PHP | 8.3+ |
+| PHP | 8.4+ |
 | 前端驱动 | Livewire 4.4 + Volt 1.11 |
 | 数据库 | MySQL 8.4 |
 | UI | Tailwind CSS |
@@ -139,7 +139,7 @@ php artisan migrate:fresh --seed
 # 6. 在 ServBay 中添加网站
 #    域名：crm.servbay.host
 #    Root 指向：项目目录的 public/
-#    PHP 版本：8.3+
+#    PHP 版本：8.4+
 
 # 7. 访问 http://crm.servbay.host
 ```
