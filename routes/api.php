@@ -66,3 +66,10 @@ Route::prefix('v1')->middleware(['auth:sanctum', 'verified', 'ensure.has.tenant'
         Route::post('webhooks/{id}/test', [TenantWebhookApiController::class, 'test'])->name('webhooks.test');
     });
 });
+
+// OpenAPI 规范与交互式文档（公开访问：规范不含敏感数据，试用需自行签发 Token）
+// 规范文件由 `php artisan api:generate-docs` 生成并提交入库，见 docs/api-reference.md
+Route::get('/openapi.json', fn () => response()->json(
+    Illuminate\Support\Facades\File::json(public_path('api/openapi.json'))
+))->name('api.openapi');
+Route::get('/docs', fn () => view('api.docs'))->name('api.docs');
