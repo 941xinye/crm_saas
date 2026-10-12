@@ -6,14 +6,14 @@ use Livewire\Component;
 
 class NotificationPreferences extends Component
 {
-    /** 可开关的通知类型（键与 ReminderService / Notification data.type 对应） */
+    /** 可开关的通知类型（键与 ReminderService / Notification data.type 对应，值为翻译 key） */
     public const TYPES = [
-        'activity_due' => '活动到期提醒',
-        'opp_close' => '商机成交日提醒',
-        'opp_no_activity' => '商机长期无活动提醒',
-        'opp_stalled' => '商机停滞提醒',
-        'trial_ending' => '试用期到期提醒',
-        'score_drop' => '商机评分骤降提醒',
+        'activity_due' => 'settings_notifpref.type_activity_due',
+        'opp_close' => 'settings_notifpref.type_opp_close',
+        'opp_no_activity' => 'settings_notifpref.type_opp_no_activity',
+        'opp_stalled' => 'settings_notifpref.type_opp_stalled',
+        'trial_ending' => 'settings_notifpref.type_trial_ending',
+        'score_drop' => 'settings_notifpref.type_score_drop',
     ];
 
     /** @var array<string, bool> */
@@ -37,13 +37,13 @@ class NotificationPreferences extends Component
 
         auth()->user()->update(['notification_prefs' => $this->prefs]);
 
-        session()->flash('success', '通知偏好已更新');
+        session()->flash('success', __('settings_notifpref.flash_saved'));
     }
 
     public function render()
     {
         return view('livewire.settings.notification-preferences', [
-            'types' => self::TYPES,
-        ])->layout('layouts.app', ['title' => '通知偏好']);
+            'types' => array_map(fn (string $translationKey): string => __($translationKey), self::TYPES),
+        ])->layout('layouts.app', ['title' => __('settings_notifpref.title')]);
     }
 }

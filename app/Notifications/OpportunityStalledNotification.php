@@ -25,19 +25,19 @@ class OpportunityStalledNotification extends Notification
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-            ->subject("商机停滞提醒：{$this->opportunityTitle}")
-            ->greeting('您好！')
-            ->line("您负责的商机自 {$this->createdDate} 起未更新：")
+            ->subject(__('notifications.opportunity_stalled.mail_subject', ['opportunity_title' => $this->opportunityTitle]))
+            ->greeting(__('notifications.greeting'))
+            ->line(__('notifications.opportunity_stalled.mail_intro', ['created_date' => $this->createdDate]))
             ->line("**{$this->opportunityTitle}**")
-            ->action('查看商机', $this->resourceUrl)
-            ->line('该商机已长期无进展，建议尽快跟进。');
+            ->action(__('notifications.opportunity_stalled.action'), $this->resourceUrl)
+            ->line(__('notifications.opportunity_stalled.mail_footer'));
     }
 
     public function toDatabase(object $notifiable): array
     {
         return [
             'type' => 'opportunity_stalled',
-            'message' => "商机「{$this->opportunityTitle}」自 {$this->createdDate} 起未更新，建议跟进",
+            'message' => __('notifications.opportunity_stalled.db_message', ['opportunity_title' => $this->opportunityTitle, 'created_date' => $this->createdDate]),
             'opportunity_id' => $this->opportunityId,
             'opportunity_title' => $this->opportunityTitle,
             'created_date' => $this->createdDate,

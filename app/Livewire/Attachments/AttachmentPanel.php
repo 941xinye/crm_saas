@@ -75,7 +75,7 @@ class AttachmentPanel extends Component
         AuditService::record($attachment, 'created');
 
         $this->reset('file');
-        session()->flash('attachment_success', "附件「{$originalName}」上传成功");
+        session()->flash('attachment_success', __('misc.attachment_uploaded', ['name' => $originalName]));
     }
 
     /**
@@ -94,7 +94,7 @@ class AttachmentPanel extends Component
         Storage::disk('local')->delete($attachment->file_path);
         $attachment->delete();
 
-        session()->flash('attachment_success', "附件「{$attachment->original_name}」已删除");
+        session()->flash('attachment_success', __('misc.attachment_deleted', ['name' => $attachment->original_name]));
     }
 
     public function render()

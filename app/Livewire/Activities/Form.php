@@ -49,8 +49,8 @@ class Form extends Component
             'notes' => $this->notes, 'scheduled_at' => $this->scheduled_at,
             'user_id' => $this->user_id,
         ];
-        if ($this->activity->exists) { $this->activity->update($data); session()->flash('success', '活动已更新'); }
-        else { Activity::create($data); session()->flash('success', '活动已创建'); }
+        if ($this->activity->exists) { $this->activity->update($data); session()->flash('success', __('activities.updated')); }
+        else { Activity::create($data); session()->flash('success', __('activities.created')); }
         $this->redirect(route('activities.index'), navigate: true);
     }
 
@@ -58,6 +58,6 @@ class Form extends Component
     {
         $users = app(Tenancy::class)->users()->orderBy('name')->get();
         return view('livewire.activities.form', ['users' => $users])
-            ->layout('layouts.app', ['title' => ($this->activity ? '编辑' : '新建') . '活动']);
+            ->layout('layouts.app', ['title' => $this->activity ? __('activities.edit_title') : __('activities.create')]);
     }
 }

@@ -29,7 +29,7 @@ class EnsureTokenScope
         $required = $request->isMethod('GET') || $request->isMethod('HEAD') ? 'read' : 'write';
 
         if (! $user->tokenCan($required)) {
-            abort(403, 'API Token 缺少 ' . $required . ' scope，请在设置中重新生成 Token。');
+            abort(403, __('api.token_missing_scope', ['scope' => $required]));
         }
 
         return $next($request);

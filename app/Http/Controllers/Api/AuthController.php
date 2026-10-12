@@ -28,22 +28,22 @@ class AuthController extends ApiController
 
         if (! Auth::attempt(['email' => $credentials['email'], 'password' => $credentials['password']])) {
             throw ValidationException::withMessages([
-                'email' => ['邮箱或密码不正确'],
+                'email' => [__('api.auth_invalid_credentials')],
             ]);
         }
 
         $user = Auth::user();
 
         if (! $user->hasVerifiedEmail()) {
-            return $this->error('请先验证邮箱', 403);
+            return $this->error(__('api.auth_email_unverified'), 403);
         }
 
         if ($user->is_platform_admin) {
-            return $this->error('平台超管不可通过 API 登录', 403);
+            return $this->error(__('api.auth_platform_admin_forbidden'), 403);
         }
 
         if (! $user->tenant) {
-            return $this->error('您尚未关联租户', 403);
+            return $this->error(__('api.auth_no_tenant'), 403);
         }
 
         // 登录签发的 Token 默认含 read/write 完整权限（与旧版兼容），细粒度 scope 请在设置页创建
@@ -119,7 +119,7 @@ class AuthController extends ApiController
     {
         $request->user()->currentAccessToken()->delete();
 
-        return $this->success(['message' => '已注销']);
+        return $this->success(['message' => __('api.auth_logged_out')]);
     }
 
     /**

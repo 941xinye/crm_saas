@@ -42,7 +42,7 @@ class InboundEmailController extends ApiController
         $body = $data['body-plain'] ?? $data['body'] ?? ($data['text'] ?? '');
 
         if (! $sender) {
-            return $this->error('缺少 sender 字段', 422);
+            return $this->error(__('api.inbound_missing_sender'), 422);
         }
 
         // 解析发件人："John Doe <john@example.com>" -> 拆姓名 + 邮箱
@@ -62,7 +62,7 @@ class InboundEmailController extends ApiController
 
         return $this->created([
             'lead_id' => $lead->id,
-            'message' => "已从邮件创建线索「{$lead->name}」",
+            'message' => __('api.inbound_lead_created', ['name' => $lead->name]),
         ]);
     }
 

@@ -90,7 +90,7 @@ class TenantWebhookApiController extends ApiController
             return $this->success([
                 'id' => $webhook->id,
                 'secret' => $webhook->secret,
-                'message' => 'Secret 已重新生成，请及时更新接收方。',
+                'message' => __('api.webhook_secret_regenerated'),
             ]);
         }
 
@@ -107,7 +107,7 @@ class TenantWebhookApiController extends ApiController
         $webhook = TenantWebhook::query()->where('id', $id)->first();
 
         if (! $webhook) {
-            return $this->error('Webhook 不存在', 404);
+            return $this->error(__('api.webhook_not_found'), 404);
         }
 
         $event = 'webhook.test';
@@ -131,6 +131,6 @@ class TenantWebhookApiController extends ApiController
             return $this->success(['status' => 'sent', 'url' => $webhook->url, 'event' => $event]);
         }
 
-        return $this->error('测试事件推送失败，请检查 URL、签名验证和网络连通性', 502);
+        return $this->error(__('api.webhook_test_failed'), 502);
     }
 }

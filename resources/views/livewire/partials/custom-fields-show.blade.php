@@ -5,7 +5,7 @@
 @php($values = $model->custom_fields ?? [])
 @if(count($definitions))
     <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-        <h3 class="text-sm font-semibold text-gray-700 mb-4">自定义字段</h3>
+        <h3 class="text-sm font-semibold text-gray-700 mb-4">{{ __('misc.custom_fields') }}</h3>
         <dl class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
             @foreach($definitions as $field)
                 @php($value = $values[$field['key']] ?? null)

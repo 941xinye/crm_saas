@@ -32,8 +32,12 @@ class Tenants extends Component
         $tenant = Tenant::findOrFail($tenantId);
         $counts = app(TenantDataService::class)->purgeData($tenant);
 
-        session()->flash('success', '已清空「' . $tenant->name . '」业务数据：'
-            . collect($counts)->filter()->map(fn ($count, $table) => "{$table} {$count} 条")->implode('，'));
+        session()->flash('success', __('platform.purge_success', [
+            'name' => $tenant->name,
+            'counts' => collect($counts)->filter()
+                ->map(fn ($count, $table) => __('platform.purge_count_item', ['table' => $table, 'count' => $count]))
+                ->implode(__('platform.purge_separator')),
+        ]));
     }
 
     public function toggleActive(int $id): void
@@ -41,13 +45,13 @@ class Tenants extends Component
         // Tenant 模型不挂 TenantScope（它自身就是租户根），无需逃生舱
         $tenant = Tenant::findOrFail($id);
         $tenant->update(['is_active' => ! $tenant->is_active]);
-        session()->flash('success', "租户「{$tenant->name}」状态已更新");
+        session()->flash('success', __('platform.tenant_status_updated', ['name' => $tenant->name]));
     }
 
     public function changePlan(int $id, string $plan): void
     {
         if (! app(PlanService::class)->exists($plan)) {
-            session()->flash('error', "未知套餐：{$plan}");
+            session()->flash('error', __('platform.unknown_plan', ['plan' => $plan]));
             return;
         }
 
@@ -58,7 +62,10 @@ class Tenants extends Component
             'trial_ends_at' => $plan === 'free' ? now() : null,
         ]);
 
-        session()->flash('success', "租户「{$tenant->name}」已切换至" . app(PlanService::class)->name($tenant));
+        session()->flash('success', __('platform.plan_switched', [
+            'name' => $tenant->name,
+            'plan' => app(PlanService::class)->name($tenant),
+        ]));
     }
 
     public function render()
@@ -85,7 +92,12 @@ class Tenants extends Component
             ->pluck('last_at', 'tenant_id');
 
         $plans = app(PlanService::class);
-        $resources = ['companies' => '公司', 'contacts' => '联系人', 'leads' => '线索', 'opportunities' => '商机'];
+        $resources = [
+            'companies' => __('platform.resource_companies'),
+            'contacts' => __('platform.resource_contacts'),
+            'leads' => __('platform.resource_leads'),
+            'opportunities' => __('platform.resource_opportunities'),
+        ];
 
         $tenants->each(function (Tenant $tenant) use ($usageByTable, $lastActivity, $plans, $resources) {
             $tenant->usage = collect($resources)->map(function ($label, $resource) use ($tenant, $usageByTable, $plans) {
@@ -114,6 +126,6 @@ class Tenants extends Component
                 ->except('upgrade_messages')
                 ->map(fn ($plan) => $plan['name'])
                 ->all(),
-        ])->layout('layouts.app', ['title' => '租户管理']);
+        ])->layout('layouts.app', ['title' => __('platform.title')]);
     }
 }

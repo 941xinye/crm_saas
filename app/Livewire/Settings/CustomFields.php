@@ -36,7 +36,7 @@ class CustomFields extends Component
     public function save(): void
     {
         if (auth()->user()->role !== 'admin') {
-            session()->flash('error', '仅租户管理员可修改自定义字段');
+            session()->flash('error', __('settings_customfields.flash_only_admin'));
             return;
         }
 
@@ -48,14 +48,16 @@ class CustomFields extends Component
         }
 
         $this->rows = CustomFieldService::expandRows(app(Tenancy::class)->current());
-        session()->flash('success', '自定义字段定义已保存');
+        session()->flash('success', __('settings_customfields.flash_saved'));
     }
 
     public function render()
     {
         return view('livewire.settings.custom-fields', [
-            'entities' => CustomFieldService::ENTITY_LABELS,
-            'types' => CustomFieldService::TYPES,
-        ])->layout('layouts.app', ['title' => '自定义字段']);
+            'entities' => collect(CustomFieldService::ENTITY_LABELS)
+                ->map(fn ($_, $key) => __("settings_customfields.entity_{$key}"))->all(),
+            'types' => collect(CustomFieldService::TYPES)
+                ->map(fn ($_, $key) => __("settings_customfields.type_{$key}"))->all(),
+        ])->layout('layouts.app', ['title' => __('settings_customfields.title')]);
     }
 }

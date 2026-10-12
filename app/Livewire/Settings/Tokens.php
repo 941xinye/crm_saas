@@ -43,6 +43,9 @@ class Tokens extends Component
     public function render()
     {
         return view('livewire.settings.tokens', [
+            'scopeOptions' => collect(self::SCOPES)->mapWithKeys(
+                fn ($label, $scope) => [$scope => __("settings_tokens.scope_{$scope}")]
+            )->all(),
             'tokens' => auth()->user()->tokens()
                 ->orderByDesc('created_at')
                 ->get(['id', 'name', 'abilities', 'last_used_at', 'created_at']),

@@ -1,0 +1,33 @@
+<?php
+
+// 中文（简体）翻译：设置 - 自定义字段
+return [
+    'title' => '自定义字段',
+    'subtitle' => '为公司 / 联系人 / 商机定义额外字段，保存后表单、详情页与 API 立即生效',
+    'add_field_btn' => '+ 添加字段',
+    'empty' => '尚未定义自定义字段，点击右上角「添加字段」开始。',
+    'entity' => '实体',
+    'entity_company' => '公司',
+    'entity_contact' => '联系人',
+    'entity_opportunity' => '商机',
+    'type_text' => '单行文本',
+    'type_textarea' => '多行文本',
+    'type_number' => '数字',
+    'type_date' => '日期',
+    'type_select' => '单选下拉',
+    'type_multiselect' => '多选',
+    'key_label' => '标识 key',
+    'key_placeholder' => '如 customer_level',
+    'display_name' => '显示名称',
+    'display_name_placeholder' => '如 客户等级',
+    'type' => '类型',
+    'options_label' => '选项（逗号分隔，下拉/多选必填）',
+    'options_placeholder' => '如 A,B,C',
+    'required' => '必填',
+    'delete' => '删除',
+    'save_btn' => '保存定义',
+    'saving' => '保存中...',
+    'key_hint' => 'key 仅允许字母、数字与下划线，保存时自动规范化并去重',
+    'flash_only_admin' => '仅租户管理员可修改自定义字段',
+    'flash_saved' => '自定义字段定义已保存',
+];

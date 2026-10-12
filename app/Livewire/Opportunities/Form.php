@@ -76,10 +76,10 @@ class Form extends Component
             'owner_id' => $this->owner_id,
             'custom_fields' => app(CustomFieldService::class)->sanitizeValues('opportunity', $this->custom_fields),
         ];
-        if ($this->opportunity->exists) { $this->opportunity->update($data); session()->flash('success', '商机已更新');
+        if ($this->opportunity->exists) { $this->opportunity->update($data); session()->flash('success', __('opportunities.form_updated'));
             $this->redirect(route('opportunities.show', $this->opportunity), navigate: true); }
         else { app(PlanService::class)->ensureCanCreate(app(Tenancy::class)->current(), 'opportunities');
-            $op = Opportunity::create($data); session()->flash('success', '商机已创建');
+            $op = Opportunity::create($data); session()->flash('success', __('opportunities.form_created'));
             $this->redirect(route('opportunities.show', $op), navigate: true); }
     }
 
@@ -92,6 +92,6 @@ class Form extends Component
         return view('livewire.opportunities.form', [
             'stages' => $stages, 'companies' => $companies,
             'contacts' => $contacts, 'owners' => $owners,
-        ])->layout('layouts.app', ['title' => ($this->opportunity ? '编辑' : '新建') . '商机']);
+        ])->layout('layouts.app', ['title' => $this->opportunity ? __('opportunities.form_title_edit') : __('opportunities.common_create_opportunity')]);
     }
 }

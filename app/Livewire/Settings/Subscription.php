@@ -74,7 +74,7 @@ class Subscription extends Component
         $usage = [];
         foreach ($resources as $resource) {
             $usage[$resource] = [
-                'label' => PlanService::RESOURCE_LABELS[$resource],
+                'label' => __('plans.resource_' . $resource),
                 'current' => $plans->usage($tenant, $resource),
                 'quota' => $plans->quota($tenant, $resource),
             ];

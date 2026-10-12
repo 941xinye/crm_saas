@@ -5,7 +5,7 @@
 @php($definitions = $service->definitions($entity))
 @if(count($definitions))
     <div class="border-t border-gray-100 pt-5 space-y-5">
-        <h3 class="text-sm font-semibold text-gray-700">自定义字段</h3>
+        <h3 class="text-sm font-semibold text-gray-700">{{ __('misc.custom_fields') }}</h3>
         @foreach($definitions as $field)
             @php($errorKey = 'custom_fields.' . $field['key'])
             <div>
@@ -20,7 +20,7 @@
                     <input wire:model="custom_fields.{{ $field['key'] }}" type="date" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
                 @elseif($field['type'] === 'select')
                     <select wire:model="custom_fields.{{ $field['key'] }}" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
-                        <option value="">-- 请选择 --</option>
+                        <option value="">{{ __('misc.select_placeholder') }}</option>
                         @foreach($field['options'] as $option)
                             <option value="{{ $option }}">{{ $option }}</option>
                         @endforeach

@@ -13,23 +13,23 @@
     <form wire:submit="upload" class="flex items-center gap-2 flex-wrap">
         <label class="inline-flex items-center px-3 py-2 bg-white border border-gray-300 hover:bg-gray-50 text-gray-600 text-xs rounded-lg cursor-pointer">
             <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-            选择文件
+            {{ __('misc.choose_file') }}
             <input type="file" wire:model="file" class="hidden" accept=".pdf,.jpg,.jpeg,.png,.gif,.webp,.doc,.docx,.xls,.xlsx,.csv,.txt,.zip">
         </label>
         @if($file)
-            <span class="text-xs text-gray-500">{{ $file->getClientOriginalName() }}（{{ number_format($file->getSize() / 1024, 0) }} KB）</span>
+            <span class="text-xs text-gray-500">{{ __('misc.file_size', ['name' => $file->getClientOriginalName(), 'size' => number_format($file->getSize() / 1024, 0)]) }}</span>
             <button type="submit" class="px-3 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-medium rounded-lg disabled:opacity-50"
                     wire:loading.attr="disabled">
-                <span wire:loading.remove>上传</span>
-                <span wire:loading>上传中...</span>
+                <span wire:loading.remove>{{ __('misc.upload') }}</span>
+                <span wire:loading>{{ __('misc.uploading') }}</span>
             </button>
         @endif
     </form>
-    <p class="text-[11px] text-gray-400">支持 PDF / 图片 / Office 文档 / ZIP，单个文件不超过 10MB</p>
+    <p class="text-[11px] text-gray-400">{{ __('misc.upload_hint') }}</p>
 
     {{-- 附件列表 --}}
     @if($attachments->isEmpty())
-        <p class="py-4 text-center text-sm text-gray-400">暂无附件</p>
+        <p class="py-4 text-center text-sm text-gray-400">{{ __('misc.no_attachments') }}</p>
     @else
         <ul class="divide-y divide-gray-100">
             @foreach($attachments as $att)
@@ -48,10 +48,10 @@
                         </div>
                     </div>
                     <div class="flex items-center gap-2 flex-shrink-0">
-                        <a href="{{ route('attachments.download', $att) }}" class="text-xs text-gray-500 hover:text-indigo-600">下载</a>
+                        <a href="{{ route('attachments.download', $att) }}" class="text-xs text-gray-500 hover:text-indigo-600">{{ __('misc.download') }}</a>
                         @if(auth()->id() === $att->uploaded_by || auth()->user()->canSeeAllRecords())
-                            <button wire:confirm="确定删除附件「{{ $att->original_name }}」吗？" wire:click="remove({{ $att->id }})"
-                                    class="text-xs text-red-500 hover:text-red-700">删除</button>
+                            <button wire:confirm="{{ __('misc.confirm_delete_attachment', ['name' => $att->original_name]) }}" wire:click="remove({{ $att->id }})"
+                                    class="text-xs text-red-500 hover:text-red-700">{{ __('misc.delete') }}</button>
                         @endif
                     </div>
                 </li>

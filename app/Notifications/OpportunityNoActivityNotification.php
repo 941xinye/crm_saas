@@ -25,19 +25,19 @@ class OpportunityNoActivityNotification extends Notification
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-            ->subject("商机跟进提醒：{$this->opportunityTitle}")
-            ->greeting('您好！')
-            ->line("您负责的商机已有 {$this->daysSinceLast} 天无任何活动记录：")
+            ->subject(__('notifications.opportunity_no_activity.mail_subject', ['opportunity_title' => $this->opportunityTitle]))
+            ->greeting(__('notifications.greeting'))
+            ->line(__('notifications.opportunity_no_activity.mail_intro', ['days_since_last' => $this->daysSinceLast]))
             ->line("**{$this->opportunityTitle}**")
-            ->action('查看商机', $this->resourceUrl)
-            ->line('建议尽快安排跟进活动，避免商机流失。');
+            ->action(__('notifications.opportunity_no_activity.action'), $this->resourceUrl)
+            ->line(__('notifications.opportunity_no_activity.mail_footer'));
     }
 
     public function toDatabase(object $notifiable): array
     {
         return [
             'type' => 'opportunity_no_activity',
-            'message' => "商机「{$this->opportunityTitle}」已有 {$this->daysSinceLast} 天无活动记录，建议跟进",
+            'message' => __('notifications.opportunity_no_activity.db_message', ['opportunity_title' => $this->opportunityTitle, 'days_since_last' => $this->daysSinceLast]),
             'opportunity_id' => $this->opportunityId,
             'opportunity_title' => $this->opportunityTitle,
             'days_since_last' => $this->daysSinceLast,

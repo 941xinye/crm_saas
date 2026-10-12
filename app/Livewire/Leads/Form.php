@@ -59,8 +59,8 @@ class Form extends Component
             'email' => $this->email, 'phone' => $this->phone,
             'source' => $this->source, 'status' => $this->status, 'owner_id' => $this->owner_id,
         ];
-        if ($this->lead->exists) { $this->lead->update($data); session()->flash('success', '线索已更新'); }
-        else { app(PlanService::class)->ensureCanCreate(app(Tenancy::class)->current(), 'leads'); Lead::create($data); session()->flash('success', '线索已创建'); }
+        if ($this->lead->exists) { $this->lead->update($data); session()->flash('success', __('leads.updated')); }
+        else { app(PlanService::class)->ensureCanCreate(app(Tenancy::class)->current(), 'leads'); Lead::create($data); session()->flash('success', __('leads.created')); }
         $this->redirect(route('leads.index'), navigate: true);
     }
 
@@ -68,6 +68,6 @@ class Form extends Component
     {
         $owners = app(Tenancy::class)->users()->orderBy('name')->get();
         return view('livewire.leads.form', ['owners' => $owners])
-            ->layout('layouts.app', ['title' => ($this->lead ? '编辑' : '新建') . '线索']);
+            ->layout('layouts.app', ['title' => $this->lead ? __('leads.edit_title') : __('leads.create')]);
     }
 }

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ config('app.name') }} - @yield('title', '欢迎')</title>
+    <title>{{ config('app.name') }} - @yield('title', __('misc.welcome'))</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
@@ -20,8 +20,8 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
                 </svg>
             </div>
-            <h1 class="text-2xl font-bold text-white">多租户 CRM 平台</h1>
-            <p class="text-white/80 text-sm mt-1">智慧客户关系管理系统</p>
+            <h1 class="text-2xl font-bold text-white">{{ __('misc.platform_name') }}</h1>
+            <p class="text-white/80 text-sm mt-1">{{ __('misc.platform_tagline') }}</p>
         </div>
 
         <!-- Card -->

@@ -32,7 +32,7 @@ class Login extends Component
 
         if (RateLimiter::tooManyAttempts($throttleKey, 5)) {
             throw ValidationException::withMessages([
-                'email' => '登录尝试过多，请在 ' . RateLimiter::availableIn($throttleKey) . ' 秒后重试。',
+                'email' => __('auth.too_many_attempts', ['seconds' => RateLimiter::availableIn($throttleKey)]),
             ]);
         }
 
@@ -42,7 +42,7 @@ class Login extends Component
             RateLimiter::hit($throttleKey);
 
             throw ValidationException::withMessages([
-                'email' => '邮箱或密码不正确。',
+                'email' => __('auth.invalid_credentials'),
             ]);
         }
 

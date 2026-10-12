@@ -61,7 +61,7 @@ class Form extends Component
         }
 
         $this->duplicateWarning = $query->exists()
-            ? "租户内已存在同名公司「{$name}」，请确认是否重复创建"
+            ? __('companies.duplicate_warning', ['name' => $name])
             : null;
     }
 
@@ -94,12 +94,12 @@ class Form extends Component
 
         if ($this->company->exists) {
             $this->company->update($data);
-            session()->flash('success', '公司信息已更新');
+            session()->flash('success', __('companies.updated'));
             $this->redirect(route('companies.show', $this->company), navigate: true);
         } else {
             app(PlanService::class)->ensureCanCreate(app(Tenancy::class)->current(), 'companies');
             $company = Company::create($data);
-            session()->flash('success', '公司已创建');
+            session()->flash('success', __('companies.created'));
             $this->redirect(route('companies.show', $company), navigate: true);
         }
     }
@@ -110,6 +110,6 @@ class Form extends Component
 
         return view('livewire.companies.form', [
             'owners' => $owners,
-        ])->layout('layouts.app', ['title' => ($this->company ? '编辑' : '新建') . '公司']);
+        ])->layout('layouts.app', ['title' => $this->company ? __('companies.form_edit_title') : __('companies.form_create_title')]);
     }
 }

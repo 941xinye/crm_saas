@@ -26,7 +26,7 @@
 return [
     'rules' => [
         [
-            'name' => '商机停滞自动跟进任务',
+            'name' => 'workflows.rule_stalled.name',
             'model' => \App\Models\Opportunity::class,
             'trigger' => 'stalled',
             'conditions' => [
@@ -40,21 +40,21 @@ return [
                         'activitable_id' => '{activitable_id}',
                         'owner_id' => '{owner_id}',
                         'type' => 'task',
-                        'subject' => '跟进停滞商机「{title}」',
-                        'notes' => '自动提醒：商机「{title}」已超过 {stalled_days} 天无活动，请及时跟进。',
+                        'subject' => 'workflows.rule_stalled.activity_subject',
+                        'notes' => 'workflows.rule_stalled.activity_notes',
                         'scheduled_at' => '+1 day',
                     ],
                 ],
                 [
                     'type' => 'notify_owner',
                     'params' => [
-                        'message' => '商机「{title}」已停滞 {stalled_days} 天，已为您自动创建跟进任务。',
+                        'message' => 'workflows.rule_stalled.notify_message',
                     ],
                 ],
             ],
         ],
         [
-            'name' => '商机进入高概率阶段提醒',
+            'name' => 'workflows.rule_high_probability_stage.name',
             'model' => \App\Models\Opportunity::class,
             'trigger' => 'entered_stage',
             'conditions' => [
@@ -68,8 +68,8 @@ return [
                         'activitable_id' => '{activitable_id}',
                         'owner_id' => '{owner_id}',
                         'type' => 'note',
-                        'subject' => '商机「{title}」进入高概率阶段',
-                        'notes' => '商机「{title}」赢单概率 ≥70%，建议尽快安排合同审阅与法务介入。',
+                        'subject' => 'workflows.rule_high_probability_stage.activity_subject',
+                        'notes' => 'workflows.rule_high_probability_stage.activity_notes',
                     ],
                 ],
             ],

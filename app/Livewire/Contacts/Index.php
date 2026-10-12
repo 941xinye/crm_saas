@@ -38,7 +38,7 @@ class Index extends Component
     {
         $c = Contact::findOrFail($id);
         $c->delete();
-        session()->flash('success', "联系人「{$c->full_name}」已删除");
+        session()->flash('success', __('contacts.deleted', ['name' => $c->full_name]));
     }
 
     /**
@@ -49,7 +49,7 @@ class Index extends Component
     public function bulkDelete(): void
     {
         if (empty($this->selected)) {
-            session()->flash('error', '请先选择要删除的联系人');
+            session()->flash('error', __('contacts.select_for_bulk_delete'));
             return;
         }
 
@@ -67,17 +67,17 @@ class Index extends Component
         });
 
         $this->selected = [];
-        session()->flash('success', "已批量删除 {$count} 条联系人");
+        session()->flash('success', __('contacts.bulk_deleted', ['count' => $count]));
     }
 
     public function export()
     {
-        return app(CsvService::class)->download(Contact::class, '联系人_' . now()->format('Y-m-d') . '.csv');
+        return app(CsvService::class)->download(Contact::class, __('contacts.export_filename', ['date' => now()->format('Y-m-d')]));
     }
 
     public function downloadTemplate()
     {
-        return app(CsvService::class)->templateDownload(Contact::class, '联系人_导入模板.csv');
+        return app(CsvService::class)->templateDownload(Contact::class, __('contacts.template_filename'));
     }
 
     public function import(): void
@@ -98,10 +98,15 @@ class Index extends Component
 
         $this->importFile = null;
 
-        $dupNote = ($result['duplicates'] ?? 0) > 0 ? "，跳过重复 " . ($result['duplicates'] ?? 0) . " 条（按邮箱查重）" : '';
+        $dupNote = ($result['duplicates'] ?? 0) > 0
+            ? __('contacts.import_duplicates_note', ['count' => $result['duplicates'] ?? 0])
+            : '';
 
         if ($result['errors'] === []) {
-            session()->flash('success', "导入成功：{$result['created']} 条联系人{$dupNote}");
+            session()->flash('success', __('contacts.import_success', [
+                'created' => $result['created'],
+                'note' => $dupNote,
+            ]));
         } else {
             session()->flash('error', $this->formatImportErrors($result, $dupNote));
         }
@@ -109,15 +114,16 @@ class Index extends Component
 
     private function formatImportErrors(array $result, string $dupNote = ''): string
     {
-        return sprintf(
-            "导入完成：成功 {$result['created']} 条{$dupNote}，失败 %d 条。<br>错误详情：%s",
-            count($result['errors']),
-            implode('<br>', array_map(
-                fn ($row, $msg) => "行 {$row}：{$msg}",
+        return __('contacts.import_partial', [
+            'created' => $result['created'],
+            'note' => $dupNote,
+            'failed' => count($result['errors']),
+            'details' => implode('<br>', array_map(
+                fn ($row, $msg) => __('contacts.import_error_row', ['row' => $row, 'message' => $msg]),
                 array_keys($result['errors']),
                 $result['errors'],
             )),
-        );
+        ]);
     }
 
     public function render()
@@ -134,6 +140,6 @@ class Index extends Component
         return view('livewire.contacts.index', [
             'contacts' => $contacts,
             'cfDefinitions' => app(\App\Services\CustomFieldService::class)->definitions('contact'),
-        ])->layout('layouts.app', ['title' => '联系人']);
+        ])->layout('layouts.app', ['title' => __('contacts.index_title')]);
     }
 }

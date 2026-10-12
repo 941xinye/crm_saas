@@ -194,10 +194,10 @@ class Automation extends Component
         if ($this->editingId) {
             $workflow = TenantWorkflow::query()->findOrFail($this->editingId);
             $workflow->update($attributes);
-            session()->flash('success', "工作流规则「{$workflow->name}」已更新");
+            session()->flash('success', __('settings_automation.saved_update', ['name' => $workflow->name]));
         } else {
             TenantWorkflow::create($attributes);
-            session()->flash('success', "工作流规则「{$this->name}」已创建");
+            session()->flash('success', __('settings_automation.saved_create', ['name' => $this->name]));
         }
 
         $this->resetForm();
@@ -210,7 +210,7 @@ class Automation extends Component
         }
         $workflow = TenantWorkflow::query()->findOrFail($id);
         $workflow->delete();
-        session()->flash('success', "工作流规则「{$workflow->name}」已删除");
+        session()->flash('success', __('settings_automation.saved_delete', ['name' => $workflow->name]));
     }
 
     public function toggleActive(int $id): void
@@ -241,12 +241,12 @@ class Automation extends Component
                 'owner_id' => '{owner_id}',
                 'type' => in_array($row['activity_type'] ?? '', ['call', 'email', 'meeting', 'note', 'task'], true)
                     ? $row['activity_type'] : 'task',
-                'subject' => trim((string) ($row['subject'] ?? '')) ?: '自动跟进任务',
+                'subject' => trim((string) ($row['subject'] ?? '')) ?: __('settings_automation.default_subject'),
                 'notes' => trim((string) ($row['notes'] ?? '')) ?: null,
                 'scheduled_at' => trim((string) ($row['scheduled_at'] ?? '')) ?: '+1 day',
             ],
             'notify_owner' => [
-                'message' => trim((string) ($row['message'] ?? '')) ?: '自动化工作流已触发',
+                'message' => trim((string) ($row['message'] ?? '')) ?: __('settings_automation.default_notify_message'),
             ],
             'set_stage' => [
                 'stage_id' => (int) $row['stage_id'],
@@ -301,6 +301,16 @@ class Automation extends Component
         $this->resetErrorBag();
     }
 
+    /**
+     * 将机器键列表映射为翻译后的显示标签（翻译键约定：settings_automation.{prefix}_{key}）。
+     */
+    private function translatedLabels(array $keys, string $prefix): array
+    {
+        return collect($keys)->mapWithKeys(
+            fn ($key) => [$key => __("settings_automation.{$prefix}_{$key}")]
+        )->all();
+    }
+
     public function render()
     {
         $workflows = TenantWorkflow::query()
@@ -311,14 +321,15 @@ class Automation extends Component
 
         return view('livewire.settings.automation', [
             'workflows' => $workflows,
-            'models' => self::MODELS,
+            'models' => [Opportunity::class => __('settings_automation.model_opportunity')],
             'triggers' => self::TRIGGERS,
-            'triggerLabels' => self::TRIGGER_LABELS,
-            'conditionFields' => self::CONDITION_FIELDS,
+            'triggerLabels' => $this->translatedLabels(self::TRIGGERS, 'trigger'),
+            'conditionFields' => $this->translatedLabels(array_keys(self::CONDITION_FIELDS), 'condition_field'),
             'operators' => self::OPERATORS,
-            'actionLabels' => self::ACTION_LABELS,
+            'actionLabels' => $this->translatedLabels(self::ACTION_TYPES, 'action'),
+            'matchModes' => $this->translatedLabels(array_keys(self::MATCH_MODES), 'match_mode'),
             'stages' => $stages,
             'canManage' => $this->canManage(),
-        ])->layout('layouts.app', ['title' => '自动化工作流']);
+        ])->layout('layouts.app', ['title' => __('settings_automation.title')]);
     }
 }

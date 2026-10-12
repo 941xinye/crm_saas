@@ -23,48 +23,61 @@ class CsvService
     /** BOM：Windows Excel 打开中文 CSV 不乱码 */
     private const BOM = "\xEF\xBB\xBF";
 
-    /** 模型类 => [header => db_column] 映射，同时作为导入字段白名单 */
-    public const COLUMNS = [
+    /** 模型类 => [services 语言键 => db_column]，运行时经 __() 解析为 [表头 => db_column]（见 columns()） */
+    private const COLUMN_KEYS = [
         Company::class => [
-            '名称' => 'name',
-            '行业' => 'industry',
-            '网站' => 'website',
-            '电话' => 'phone',
-            '地址' => 'address',
+            'csv_company_name' => 'name',
+            'csv_company_industry' => 'industry',
+            'csv_company_website' => 'website',
+            'csv_phone' => 'phone',
+            'csv_company_address' => 'address',
         ],
         Contact::class => [
-            '姓' => 'last_name',
-            '名' => 'first_name',
-            '邮箱' => 'email',
-            '电话' => 'phone',
-            '职位' => 'position',
-            '公司' => 'company_name',       // 导入时按名称匹配已有公司或自动新建
+            'csv_contact_last_name' => 'last_name',
+            'csv_contact_first_name' => 'first_name',
+            'csv_email' => 'email',
+            'csv_phone' => 'phone',
+            'csv_contact_position' => 'position',
+            'csv_contact_company' => 'company_name',   // 导入时按名称匹配已有公司或自动新建
         ],
         Lead::class => [
-            '姓名' => 'name',
-            '公司名' => 'company_name',
-            '邮箱' => 'email',
-            '电话' => 'phone',
-            '来源' => 'source',
-            '状态' => 'status',
+            'csv_lead_name' => 'name',
+            'csv_lead_company_name' => 'company_name',
+            'csv_email' => 'email',
+            'csv_phone' => 'phone',
+            'csv_lead_source' => 'source',
+            'csv_lead_status' => 'status',
         ],
         Opportunity::class => [
-            '标题' => 'title',
-            '金额' => 'value',
-            '预计成交日' => 'expected_close_date',
-            '阶段' => 'stage_name',         // 导入时按名称匹配 Stage
-            '公司' => 'company_name',       // 导入时按名称匹配 Company
-            '联系人' => 'contact_name',     // 导入时按全名匹配 Contact
+            'csv_opp_title' => 'title',
+            'csv_opp_value' => 'value',
+            'csv_opp_close_date' => 'expected_close_date',
+            'csv_opp_stage' => 'stage_name',           // 导入时按名称匹配 Stage
+            'csv_contact_company' => 'company_name',   // 导入时按名称匹配 Company
+            'csv_opp_contact' => 'contact_name',       // 导入时按全名匹配 Contact
         ],
         Activity::class => [
-            '类型' => 'type',
-            '主题' => 'subject',
-            '计划时间' => 'scheduled_at',
-            '完成时间' => 'completed_at',
-            '负责人' => 'user_name',        // 导入时按姓名匹配 User
-            '备注' => 'notes',
+            'csv_activity_type' => 'type',
+            'csv_activity_subject' => 'subject',
+            'csv_activity_scheduled_at' => 'scheduled_at',
+            'csv_activity_completed_at' => 'completed_at',
+            'csv_activity_user' => 'user_name',        // 导入时按姓名匹配 User
+            'csv_activity_notes' => 'notes',
         ],
     ];
+
+    /** 模型类 => [翻译后表头 => db_column]，同时作为导入字段白名单（zh_CN 表头与历史中文表头逐字一致） */
+    private function columns(string $modelClass): array
+    {
+        $keys = self::COLUMN_KEYS[$modelClass] ?? throw new \InvalidArgumentException("未配置 CSV 列：{$modelClass}");
+
+        $columns = [];
+        foreach ($keys as $key => $dbColumn) {
+            $columns[__("services.{$key}")] = $dbColumn;
+        }
+
+        return $columns;
+    }
 
     /** 导入时从 CSV 行中剥离的敏感字段（防跨租户注入）。status 是业务字段，允许覆盖 */
     private const STRIP_FIELDS = ['tenant_id', 'owner_id', 'user_id', 'stage_id', 'company_id', 'contact_id', 'activitable_type', 'activitable_id'];
@@ -80,7 +93,7 @@ class CsvService
      */
     public function export(string $modelClass, ?Builder $query = null): string
     {
-        $columns = self::COLUMNS[$modelClass] ?? throw new \InvalidArgumentException("未配置 CSV 列：{$modelClass}");
+        $columns = $this->columns($modelClass);
         $header = array_keys($columns);
 
         $query = $query ?? $modelClass::query();
@@ -157,8 +170,8 @@ class CsvService
                 $lines[] = $this->csvLine(array_values($row));
             }
         } else {
-            $lines[] = $this->csvLine(['提示']);
-            $lines[] = $this->csvLine(['暂无数据']);
+            $lines[] = $this->csvLine([__('services.csv_report_hint')]);
+            $lines[] = $this->csvLine([__('services.csv_no_data')]);
         }
 
         return response(self::BOM . implode("\n", $lines))
@@ -173,7 +186,7 @@ class CsvService
     public function exportAuditLogs(Builder $query): string
     {
         $lines = [];
-        $lines[] = $this->csvLine(['ID', '时间', '操作者', '动作', '对象类型', '对象 ID', 'Batch ID', 'IP', 'Route', '变更前', '变更后']);
+        $lines[] = $this->csvLine(['ID', __('services.csv_audit_time'), __('services.csv_audit_operator'), __('services.csv_audit_action'), __('services.csv_audit_object_type'), __('services.csv_audit_object_id'), 'Batch ID', 'IP', 'Route', __('services.csv_audit_before'), __('services.csv_audit_after')]);
 
         $query
             ->with(['user:id,name'])
@@ -201,8 +214,10 @@ class CsvService
     /**
      * 审计日志 HTTP 下载响应。
      */
-    public function downloadAuditLogs(Builder $query, string $filename = '审计日志.csv')
+    public function downloadAuditLogs(Builder $query, ?string $filename = null)
     {
+        $filename ??= __('services.csv_audit_log_filename');
+
         return response($this->exportAuditLogs($query))
             ->header('Content-Type', 'text/csv; charset=utf-8')
             ->header('Content-Disposition', "attachment; filename=\"{$filename}\"");
@@ -228,13 +243,13 @@ class CsvService
         string $csvContent,
         ?\App\Models\Tenant $tenant = null,
     ): array {
-        $columns = self::COLUMNS[$modelClass] ?? throw new \InvalidArgumentException("未配置 CSV 列：{$modelClass}");
+        $columns = $this->columns($modelClass);
         $tenant = $tenant ?? app(Tenancy::class)->current();
         $planService = app(PlanService::class);
 
         // 试用期前置检查：过期直接拒整个批次（避免逐行报同一个错）
         if ($tenant && ! $planService->canCreate($tenant)) {
-            throw new \RuntimeException('试用期已结束，无法导入数据。');
+            throw new \RuntimeException(__('services.csv_trial_ended'));
         }
 
         // 配额前置检查：CSV 行数 + 当前用量 > 配额时拒整个批次
@@ -245,10 +260,9 @@ class CsvService
                 $count = $this->countCsvRows($csvContent);
                 $usage = $planService->usage($tenant, $targetResource);
                 if ($usage + $count > $quota) {
-                    throw new \RuntimeException(sprintf(
-                        '配额不足：当前 %d 条，配额 %d 条，本批导入 %d 条后将超出。',
-                        $usage, $quota, $count,
-                    ));
+                    throw new \RuntimeException(__('services.csv_quota_insufficient', [
+                        'usage' => $usage, 'quota' => $quota, 'count' => $count,
+                    ]));
                 }
             }
         }
@@ -259,7 +273,7 @@ class CsvService
             $lines[0] = substr($lines[0], strlen(self::BOM));
         }
         if (empty($lines) || trim($lines[0]) === '') {
-            return ['created' => 0, 'errors' => ['文件为空或无表头']];
+            return ['created' => 0, 'errors' => [__('services.csv_empty_file')]];
         }
 
         $headers = array_map('trim', str_getcsv($lines[0]));
@@ -267,21 +281,21 @@ class CsvService
 
         // 表头有效性检查：只校验必需列（模型必填字段）
         $requiredHeaders = match ($modelClass) {
-            Company::class => ['名称'],
+            Company::class => [__('services.csv_company_name')],
             Contact::class => [], // 姓或名至少一项，行级校验
-            Lead::class => ['姓名'],
-            Opportunity::class => ['标题', '阶段'],
-            Activity::class => ['类型', '主题'],
+            Lead::class => [__('services.csv_lead_name')],
+            Opportunity::class => [__('services.csv_opp_title'), __('services.csv_opp_stage')],
+            Activity::class => [__('services.csv_activity_type'), __('services.csv_activity_subject')],
             default => [],
         };
         $presentHeaders = array_keys($headerToColumn);
         $missing = array_values(array_diff($requiredHeaders, $presentHeaders));
         if ($modelClass === Opportunity::class) {
             // 商机的阶段/公司/联系人按名称解析而非 fillable 列
-            $missing = array_values(array_diff($missing, ['阶段', '公司', '联系人']));
+            $missing = array_values(array_diff($missing, [__('services.csv_opp_stage'), __('services.csv_contact_company'), __('services.csv_opp_contact')]));
         }
         if (! empty($missing)) {
-            return ['created' => 0, 'errors' => ['CSV 缺少必需列：' . implode('、', $missing)]];
+            return ['created' => 0, 'errors' => [__('services.csv_missing_columns', ['columns' => implode(__('services.csv_list_separator'), $missing)])]];
         }
 
         $created = 0;
@@ -351,10 +365,10 @@ class CsvService
         return match ($modelClass) {
             Company::class => isset($data['name']) && $data['name'] !== ''
                 && Company::where('name', $data['name'])->exists()
-                ? "公司「{$data['name']}」已存在，跳过重复行" : null,
+                ? __('services.csv_duplicate_company', ['name' => $data['name']]) : null,
             Contact::class => ! empty($data['email'])
                 && Contact::where('email', $data['email'])->exists()
-                ? "邮箱 {$data['email']} 的联系人已存在，跳过重复行" : null,
+                ? __('services.csv_duplicate_contact', ['email' => $data['email']]) : null,
             default => null,
         };
     }
@@ -386,7 +400,7 @@ class CsvService
             if (! empty($data['stage_name'])) {
                 $stage = \App\Models\Stage::where('name', $data['stage_name'])->first();
                 if (! $stage) {
-                    throw new \RuntimeException("找不到阶段：{$data['stage_name']}");
+                    throw new \RuntimeException(__('services.csv_stage_not_found', ['name' => $data['stage_name']]));
                 }
                 $data['stage_id'] = $stage->id;
             }
@@ -423,7 +437,7 @@ class CsvService
                     ->where('name', $data['user_name'])
                     ->first();
                 if (! $user) {
-                    throw new \RuntimeException("找不到负责人：{$data['user_name']}");
+                    throw new \RuntimeException(__('services.csv_owner_not_found', ['name' => $data['user_name']]));
                 }
                 $data['user_id'] = $user->id;
             }
@@ -459,11 +473,11 @@ class CsvService
     private function validateRow(string $modelClass, array $data): ?string
     {
         return match ($modelClass) {
-            Company::class => empty($data['name']) ? '公司名称为必填项' : null,
-            Contact::class => (empty($data['last_name']) && empty($data['first_name'])) ? '姓或名至少填一项' : null,
-            Lead::class => empty($data['name']) ? '姓名为必填项' : null,
-            Opportunity::class => empty($data['stage_id']) || empty($data['title']) ? '商机标题和阶段为必填项' : null,
-            Activity::class => empty($data['subject']) ? '活动主题为必填项' : (empty($data['type']) ? '活动类型为必填项' : null),
+            Company::class => empty($data['name']) ? __('services.csv_company_name_required') : null,
+            Contact::class => (empty($data['last_name']) && empty($data['first_name'])) ? __('services.csv_contact_name_required') : null,
+            Lead::class => empty($data['name']) ? __('services.csv_lead_name_required') : null,
+            Opportunity::class => empty($data['stage_id']) || empty($data['title']) ? __('services.csv_opp_required') : null,
+            Activity::class => empty($data['subject']) ? __('services.csv_activity_subject_required') : (empty($data['type']) ? __('services.csv_activity_type_required') : null),
             default => null,
         };
     }
@@ -523,7 +537,7 @@ class CsvService
      */
     public function template(string $modelClass): string
     {
-        $columns = self::COLUMNS[$modelClass] ?? throw new \InvalidArgumentException("未配置 CSV 列：{$modelClass}");
+        $columns = $this->columns($modelClass);
         return self::BOM . implode(',', array_keys($columns));
     }
 

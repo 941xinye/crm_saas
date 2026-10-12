@@ -37,7 +37,7 @@ class ActivityApiController extends ApiController
             $type = $request->input('activitable_type');
             $modelClass = self::MORPH_TYPES[$type] ?? null;
             if ($modelClass === null) {
-                $fail('activitable_type 必须是 company、contact 或 opportunity 之一');
+                $fail(__('api.activity_invalid_morph_type'));
 
                 return;
             }
@@ -48,7 +48,7 @@ class ActivityApiController extends ApiController
                 ->where('tenant_id', $tenantId)
                 ->exists();
             if (! $exists) {
-                $fail('关联对象不存在或不属于当前租户');
+                $fail(__('api.activity_morph_not_found'));
             }
         };
 

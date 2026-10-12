@@ -66,7 +66,7 @@ class AuditLogs extends Component
     {
         return app(CsvService::class)->downloadAuditLogs(
             $this->baseQuery()->orderByDesc('created_at'),
-            '审计日志_' . now()->format('Y-m-d') . '.csv',
+            __('audit.export_filename', ['date' => now()->format('Y-m-d')]),
         );
     }
 
@@ -88,21 +88,21 @@ class AuditLogs extends Component
             'logs' => $query->paginate(20),
             'batchGroups' => $batchGroups,
             'actions' => [
-                'created' => '新增',
-                'updated' => '修改',
-                'deleted' => '删除',
-                'restored' => '恢复',
-                'batch_deleted' => '批量删除',
-                'batch_updated' => '批量修改',
-                'batch_created' => '批量新增',
+                'created' => __('audit.action_created'),
+                'updated' => __('audit.action_updated'),
+                'deleted' => __('audit.action_deleted'),
+                'restored' => __('audit.action_restored'),
+                'batch_deleted' => __('audit.action_batch_deleted'),
+                'batch_updated' => __('audit.action_batch_updated'),
+                'batch_created' => __('audit.action_batch_created'),
             ],
             'models' => [
-                \App\Models\Company::class => '公司',
-                \App\Models\Contact::class => '联系人',
-                \App\Models\Lead::class => '线索',
-                \App\Models\Opportunity::class => '商机',
-                \App\Models\Attachment::class => '附件',
+                \App\Models\Company::class => __('audit.model_company'),
+                \App\Models\Contact::class => __('audit.model_contact'),
+                \App\Models\Lead::class => __('audit.model_lead'),
+                \App\Models\Opportunity::class => __('audit.model_opportunity'),
+                \App\Models\Attachment::class => __('audit.model_attachment'),
             ],
-        ])->layout('layouts.app', ['title' => '审计日志']);
+        ])->layout('layouts.app', ['title' => __('audit.title')]);
     }
 }

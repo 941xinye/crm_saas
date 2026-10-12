@@ -20,7 +20,7 @@ class LocaleController extends Controller
         App::setLocale($validated['locale']);
 
         return back()->with('success', $validated['locale'] === 'en'
-            ? 'Language switched to English.'
-            : '界面语言已切换为中文。');
+            ? __('locale.switched_en')
+            : __('locale.switched_zh'));
     }
 }

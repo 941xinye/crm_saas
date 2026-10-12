@@ -43,7 +43,7 @@ class Show extends Component
         }
 
         if (! $llm->configured()) {
-            $this->aiMessage = 'AI 功能未启用：请在 .env 中配置 LLM_API_KEY 后重试。';
+            $this->aiMessage = __('opportunities.show_ai_not_configured');
 
             return;
         }
@@ -55,7 +55,7 @@ class Show extends Component
             $this->suggestion = $service->suggest($this->opportunity);
 
             if ($this->suggestion === null) {
-                $this->aiMessage = 'AI 生成失败：请稍后重试（可能触发频率限制或服务暂时不可用）。';
+                $this->aiMessage = __('opportunities.show_ai_generate_failed');
             }
         } finally {
             $this->generating = false;
@@ -84,7 +84,7 @@ class Show extends Component
 
         // 保存后清空草稿并刷新时间线
         $this->suggestion = null;
-        $this->aiMessage = '草稿已保存到跟进时间线。';
+        $this->aiMessage = __('opportunities.show_ai_saved_to_timeline');
     }
 
     public function render()

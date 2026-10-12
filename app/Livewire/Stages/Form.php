@@ -85,10 +85,10 @@ class Form extends Component
 
         if ($this->stage->exists) {
             $this->stage->update($data);
-            session()->flash('success', '阶段已更新');
+            session()->flash('success', __('stages.updated'));
         } else {
             Stage::create($data);
-            session()->flash('success', '阶段已创建');
+            session()->flash('success', __('stages.created'));
         }
 
         $this->redirect(route('stages.index'), navigate: true);
@@ -97,6 +97,6 @@ class Form extends Component
     public function render()
     {
         return view('livewire.stages.form')
-            ->layout('layouts.app', ['title' => ($this->stage->exists ? '编辑' : '新建') . '阶段']);
+            ->layout('layouts.app', ['title' => $this->stage->exists ? __('stages.edit_title') : __('stages.create_title')]);
     }
 }

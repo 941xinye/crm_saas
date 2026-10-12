@@ -25,19 +25,19 @@ class OpportunityCloseDateNotification extends Notification
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-            ->subject("商机成交提醒：{$this->opportunityTitle}")
-            ->greeting('您好！')
-            ->line("您负责的商机预计于 {$this->expectedCloseDate} 成交：")
+            ->subject(__('notifications.opportunity_close_date.mail_subject', ['opportunity_title' => $this->opportunityTitle]))
+            ->greeting(__('notifications.greeting'))
+            ->line(__('notifications.opportunity_close_date.mail_intro', ['expected_close_date' => $this->expectedCloseDate]))
             ->line("**{$this->opportunityTitle}**")
-            ->action('查看商机', $this->resourceUrl)
-            ->line('请跟进推进，确保按期成交。');
+            ->action(__('notifications.opportunity_close_date.action'), $this->resourceUrl)
+            ->line(__('notifications.opportunity_close_date.mail_footer'));
     }
 
     public function toDatabase(object $notifiable): array
     {
         return [
             'type' => 'opportunity_close_date',
-            'message' => "商机「{$this->opportunityTitle}」预计于 {$this->expectedCloseDate} 成交",
+            'message' => __('notifications.opportunity_close_date.db_message', ['opportunity_title' => $this->opportunityTitle, 'expected_close_date' => $this->expectedCloseDate]),
             'opportunity_id' => $this->opportunityId,
             'opportunity_title' => $this->opportunityTitle,
             'expected_close_date' => $this->expectedCloseDate,

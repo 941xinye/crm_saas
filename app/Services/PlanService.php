@@ -34,7 +34,10 @@ class PlanService
 
     public function name(Tenant $tenant): string
     {
-        return $this->config($tenant)['name'];
+        // 未知 plan 键回退 free（与 config() 回退行为一致），名称改由语言文件提供
+        $plan = is_array(config("plans.{$tenant->plan}")) ? $tenant->plan : 'free';
+
+        return __('plans.plan_' . $plan);
     }
 
     public function exists(string $plan): bool
@@ -93,16 +96,23 @@ class PlanService
 
         if (! $this->canCreate($tenant)) {
             throw ValidationException::withMessages([
-                $resource => '试用期已结束，升级套餐后才能继续新增数据。',
+                $resource => __('plans.trial_ended_create'),
             ]);
         }
 
         $quota = $this->quota($tenant, $resource);
         if ($quota >= 0 && $this->usage($tenant, $resource) >= $quota) {
-            $label = self::RESOURCE_LABELS[$resource] ?? $resource;
+            // RESOURCE_LABELS 的中文值供订阅页直读；错误提示按资源键走语言文件
+            $label = isset(self::RESOURCE_LABELS[$resource])
+                ? __("plans.resource_{$resource}")
+                : $resource;
 
             throw ValidationException::withMessages([
-                $resource => "已达到「{$this->name($tenant)}」{$label}数量上限（{$quota} 条），请升级套餐。",
+                $resource => __('plans.quota_exceeded', [
+                    'plan' => $this->name($tenant),
+                    'resource' => $label,
+                    'quota' => $quota,
+                ]),
             ]);
         }
     }
@@ -121,10 +131,14 @@ class PlanService
     }
 
     /**
-     * 获取 feature 对应的升级提示文案。
+     * 获取 feature 对应的升级提示文案（文案由语言文件提供，config 仅维护 feature 清单）。
      */
     public function upgradeMessage(string $feature): string
     {
-        return config("plans.upgrade_messages.{$feature}", '当前套餐不支持此功能，请升级后使用。');
+        if (! array_key_exists($feature, (array) config('plans.upgrade_messages', []))) {
+            return __('plans.upgrade_default');
+        }
+
+        return __('plans.upgrade_' . str_replace('-', '_', $feature));
     }
 }

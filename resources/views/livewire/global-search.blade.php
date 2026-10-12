@@ -1,12 +1,12 @@
 <div class="max-w-4xl space-y-4">
-    <h1 class="text-2xl font-bold text-gray-900">全局搜索</h1>
+    <h1 class="text-2xl font-bold text-gray-900">{{ __('misc.global_search') }}</h1>
 
     <div class="relative">
         <svg class="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
         </svg>
         <input type="text" wire:model.live.debounce.300ms="q"
-               placeholder="搜索公司、联系人、线索、商机…"
+               placeholder="{{ __('misc.search_placeholder') }}"
                class="w-full pl-10 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
                autofocus>
     </div>
@@ -16,21 +16,21 @@
             <svg class="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
             </svg>
-            <p class="text-gray-500">输入关键词开始搜索</p>
-            <p class="text-xs text-gray-400 mt-1">支持匹配公司、联系人、线索、商机的名称与联系方式</p>
+            <p class="text-gray-500">{{ __('misc.enter_keyword') }}</p>
+            <p class="text-xs text-gray-400 mt-1">{{ __('misc.search_hint') }}</p>
         </div>
     @elseif($total === 0)
         <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-12 text-center">
-            <p class="text-gray-500">未找到与「{{ $term }}」相关的记录</p>
+            <p class="text-gray-500">{{ __('misc.no_results_for', ['term' => $term]) }}</p>
         </div>
     @else
-        <p class="text-sm text-gray-500">共找到 {{ $total }} 条结果</p>
+        <p class="text-sm text-gray-500">{{ __('misc.total_results', ['count' => $total]) }}</p>
 
         @php($sections = [
-            'opportunities' => ['商机', 'opportunities.show'],
-            'companies' => ['公司', 'companies.show'],
-            'contacts' => ['联系人', 'contacts.show'],
-            'leads' => ['线索', 'leads.show'],
+            'opportunities' => [__('misc.section_opportunities'), 'opportunities.show'],
+            'companies' => [__('misc.section_companies'), 'companies.show'],
+            'contacts' => [__('misc.section_contacts'), 'contacts.show'],
+            'leads' => [__('misc.section_leads'), 'leads.show'],
         ])
 
         @foreach($sections as $key => [$label, $route])
@@ -40,7 +40,7 @@
             <div class="bg-white rounded-xl shadow-sm border border-gray-100">
                 <div class="px-4 py-2.5 border-b border-gray-100 flex items-center justify-between">
                     <span class="text-xs font-semibold text-indigo-600 uppercase tracking-wide">{{ $label }}</span>
-                    <span class="text-xs text-gray-400">{{ $items->count() }} 条</span>
+                    <span class="text-xs text-gray-400">{{ __('misc.count_items', ['count' => $items->count()]) }}</span>
                 </div>
                 <div class="divide-y divide-gray-50">
                     @foreach($items as $item)
@@ -57,9 +57,9 @@
                                     @if($key === 'opportunities')
                                         {{ $item->company?->name ?? '—' }} · {{ $item->stage?->name ?? '—' }} · ¥{{ number_format((float) $item->value, 2) }}
                                     @elseif($key === 'companies')
-                                        {{ $item->industry ?: '行业未填' }}{{ $item->phone ? " · {$item->phone}" : '' }}
+                                        {{ $item->industry ?: __('misc.industry_not_set') }}{{ $item->phone ? " · {$item->phone}" : '' }}
                                     @elseif($key === 'contacts')
-                                        {{ $item->company?->name ?? '未关联公司' }}{{ $item->email ? " · {$item->email}" : '' }}
+                                        {{ $item->company?->name ?? __('misc.no_company') }}{{ $item->email ? " · {$item->email}" : '' }}
                                     @elseif($key === 'leads')
                                         {{ $item->company_name ?: '—' }} · {{ $item->status }}
                                     @endif

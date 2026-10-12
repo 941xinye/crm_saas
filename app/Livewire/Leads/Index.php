@@ -39,7 +39,7 @@ class Index extends Component
     {
         $l = Lead::findOrFail($id);
         $l->delete();
-        session()->flash('success', "线索「{$l->name}」已删除");
+        session()->flash('success', __('leads.deleted', ['name' => $l->name]));
     }
 
     /**
@@ -48,7 +48,7 @@ class Index extends Component
     public function bulkDelete(): void
     {
         if (empty($this->selected)) {
-            session()->flash('error', '请先选择要删除的线索');
+            session()->flash('error', __('leads.select_for_delete'));
             return;
         }
 
@@ -66,17 +66,17 @@ class Index extends Component
         });
 
         $this->selected = [];
-        session()->flash('success', "已批量删除 {$count} 条线索");
+        session()->flash('success', __('leads.bulk_deleted', ['count' => $count]));
     }
 
     public function export()
     {
-        return app(CsvService::class)->download(Lead::class, '线索_' . now()->format('Y-m-d') . '.csv');
+        return app(CsvService::class)->download(Lead::class, __('leads.export_filename', ['date' => now()->format('Y-m-d')]));
     }
 
     public function downloadTemplate()
     {
-        return app(CsvService::class)->templateDownload(Lead::class, '线索_导入模板.csv');
+        return app(CsvService::class)->templateDownload(Lead::class, __('leads.template_filename'));
     }
 
     public function import(): void
@@ -97,20 +97,21 @@ class Index extends Component
 
         $this->importFile = null;
 
-        $dupNote = ($result['duplicates'] ?? 0) > 0 ? "，跳过重复 " . ($result['duplicates'] ?? 0) . " 条" : '';
+        $dupNote = ($result['duplicates'] ?? 0) > 0 ? __('leads.import_duplicates_note', ['count' => $result['duplicates'] ?? 0]) : '';
 
         if ($result['errors'] === []) {
-            session()->flash('success', "导入成功：{$result['created']} 条线索{$dupNote}");
+            session()->flash('success', __('leads.import_success', ['created' => $result['created']]) . $dupNote);
         } else {
-            session()->flash('error', sprintf(
-                "导入完成：成功 {$result['created']} 条{$dupNote}，失败 %d 条。<br>错误详情：%s",
-                count($result['errors']),
-                implode('<br>', array_map(
-                    fn ($row, $msg) => "行 {$row}：{$msg}",
+            session()->flash('error',
+                __('leads.import_completed', ['created' => $result['created']])
+                . $dupNote
+                . __('leads.import_failed_part', ['count' => count($result['errors'])])
+                . implode('<br>', array_map(
+                    fn ($row, $msg) => __('leads.import_error_row', ['row' => $row, 'message' => $msg]),
                     array_keys($result['errors']),
                     $result['errors'],
-                )),
-            ));
+                ))
+            );
         }
     }
 
@@ -127,6 +128,6 @@ class Index extends Component
         $owners = $this->ownerOptions();
 
         return view('livewire.leads.index', ['leads' => $leads, 'owners' => $owners])
-            ->layout('layouts.app', ['title' => '线索']);
+            ->layout('layouts.app', ['title' => __('leads.title')]);
     }
 }

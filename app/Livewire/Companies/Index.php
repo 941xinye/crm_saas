@@ -39,7 +39,7 @@ class Index extends Component
     {
         $company = Company::findOrFail($id);
         $company->delete();
-        session()->flash('success', "公司「{$company->name}」已删除");
+        session()->flash('success', __('companies.deleted', ['name' => $company->name]));
     }
 
     /**
@@ -48,7 +48,7 @@ class Index extends Component
     public function bulkDelete(): void
     {
         if (empty($this->selected)) {
-            session()->flash('error', '请先选择要删除的公司');
+            session()->flash('error', __('companies.select_for_bulk_delete'));
             return;
         }
 
@@ -66,14 +66,14 @@ class Index extends Component
         });
 
         $this->selected = [];
-        session()->flash('success', "已批量删除 {$count} 条公司");
+        session()->flash('success', __('companies.bulk_deleted', ['count' => $count]));
     }
 
     public function export()
     {
         return app(CsvService::class)->download(
             Company::class,
-            '公司_' . now()->format('Y-m-d') . '.csv',
+            __('companies.export_filename', ['date' => now()->format('Y-m-d')]),
         );
     }
 
@@ -81,7 +81,7 @@ class Index extends Component
     {
         return app(CsvService::class)->templateDownload(
             Company::class,
-            '公司_导入模板.csv',
+            __('companies.template_filename'),
         );
     }
 
@@ -103,20 +103,26 @@ class Index extends Component
 
         $this->importFile = null;
 
-        $dupNote = ($result['duplicates'] ?? 0) > 0 ? "，跳过重复 " . ($result['duplicates'] ?? 0) . " 条（按名称查重）" : '';
+        $dupNote = ($result['duplicates'] ?? 0) > 0
+            ? __('companies.import_duplicates_note', ['count' => $result['duplicates'] ?? 0])
+            : '';
 
         if ($result['errors'] === []) {
-            session()->flash('success', "导入成功：{$result['created']} 条公司{$dupNote}");
+            session()->flash('success', __('companies.import_success', [
+                'created' => $result['created'],
+                'note' => $dupNote,
+            ]));
         } else {
-            session()->flash('error', sprintf(
-                "导入完成：成功 {$result['created']} 条{$dupNote}，失败 %d 条。<br>错误详情：%s",
-                count($result['errors']),
-                implode('<br>', array_map(
-                    fn ($row, $msg) => "行 {$row}：{$msg}",
+            session()->flash('error', __('companies.import_partial', [
+                'created' => $result['created'],
+                'note' => $dupNote,
+                'failed' => count($result['errors']),
+                'details' => implode('<br>', array_map(
+                    fn ($row, $msg) => __('companies.import_error_row', ['row' => $row, 'message' => $msg]),
                     array_keys($result['errors']),
                     $result['errors'],
                 )),
-            ));
+            ]));
         }
     }
 
@@ -142,6 +148,6 @@ class Index extends Component
             'companies' => $companies,
             'owners' => $owners,
             'cfDefinitions' => app(\App\Services\CustomFieldService::class)->definitions('company'),
-        ])->layout('layouts.app', ['title' => '公司']);
+        ])->layout('layouts.app', ['title' => __('companies.index_title')]);
     }
 }

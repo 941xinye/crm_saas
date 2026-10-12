@@ -39,6 +39,6 @@ class NotificationsCenter extends Component
                 ->limit(100)
                 ->get(),
             'unreadCount' => $user->unreadNotifications()->count(),
-        ])->layout('layouts.app', ['title' => '通知中心']);
+        ])->layout('layouts.app', ['title' => __('misc.notifications_center')]);
     }
 }

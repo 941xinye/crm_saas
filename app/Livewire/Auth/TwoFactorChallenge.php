@@ -42,7 +42,7 @@ class TwoFactorChallenge extends Component
 
         if (RateLimiter::tooManyAttempts($throttleKey, 5)) {
             throw ValidationException::withMessages([
-                'code' => '尝试次数过多，请在 ' . RateLimiter::availableIn($throttleKey) . ' 秒后重试。',
+                'code' => __('auth.too_many_code_attempts', ['seconds' => RateLimiter::availableIn($throttleKey)]),
             ]);
         }
 
@@ -69,7 +69,7 @@ class TwoFactorChallenge extends Component
         if (! $valid) {
             RateLimiter::hit($throttleKey, 300);
 
-            throw ValidationException::withMessages(['code' => '验证码不正确。']);
+            throw ValidationException::withMessages(['code' => __('auth.code_invalid')]);
         }
 
         RateLimiter::clear($throttleKey);
@@ -83,7 +83,7 @@ class TwoFactorChallenge extends Component
         $remaining = count($user->two_factor_recovery_codes ?? []);
 
         if ($usedRecoveryCode && $remaining > 0 && $remaining <= 2) {
-            session()->flash('warning', "恢复码仅剩 {$remaining} 个，建议前往「设置 → 安全设置」重新生成。");
+            session()->flash('warning', __('auth.recovery_codes_low', ['remaining' => $remaining]));
         }
 
         $this->redirect(route('dashboard'), navigate: true);

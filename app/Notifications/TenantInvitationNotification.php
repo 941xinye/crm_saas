@@ -28,18 +28,18 @@ class TenantInvitationNotification extends Notification
     public function toMail(object $notifiable): MailMessage
     {
         $roleLabel = match ($this->role) {
-            'admin' => '管理员',
-            'manager' => '经理',
-            'sales' => '销售',
+            'admin' => __('notifications.role_admin'),
+            'manager' => __('notifications.role_manager'),
+            'sales' => __('notifications.role_sales'),
             default => $this->role,
         };
 
         return (new MailMessage)
-            ->subject("邀请您加入「{$this->tenantName}」团队")
-            ->greeting("您好！")
-            ->line("{$this->tenantName} 邀请您加入其团队，角色为：{$roleLabel}。")
-            ->action('接受邀请', $this->acceptUrl)
-            ->line('此邀请链接将在 7 天后失效。')
-            ->line('如果您没有预期收到此邀请，请忽略此邮件。');
+            ->subject(__('notifications.tenant_invitation.subject', ['tenant_name' => $this->tenantName]))
+            ->greeting(__('notifications.greeting'))
+            ->line(__('notifications.tenant_invitation.body', ['tenant_name' => $this->tenantName, 'role' => $roleLabel]))
+            ->action(__('notifications.tenant_invitation.action'), $this->acceptUrl)
+            ->line(__('notifications.tenant_invitation.expire_notice'))
+            ->line(__('notifications.tenant_invitation.ignore_notice'));
     }
 }

@@ -2,16 +2,16 @@
     <!-- 页面标题 -->
     <div class="flex items-center justify-between">
         <div>
-            <h1 class="text-2xl font-bold text-gray-900">商机看板</h1>
-            <p class="text-sm text-gray-500 mt-1">拖拽卡片改变商机阶段 · 总金额：<span class="font-semibold text-green-600">¥{{ number_format($totalValue, 2) }}</span></p>
+            <h1 class="text-2xl font-bold text-gray-900">{{ __('opportunities.board_title') }}</h1>
+            <p class="text-sm text-gray-500 mt-1">{{ __('opportunities.board_subtitle') }}<span class="font-semibold text-green-600">¥{{ number_format($totalValue, 2) }}</span></p>
         </div>
         <div class="space-x-2">
             <a href="{{ route('opportunities.index') }}" class="inline-flex items-center px-4 py-2 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 text-sm font-medium rounded-lg">
-                列表视图
+                {{ __('opportunities.board_list_view') }}
             </a>
             <a href="{{ route('opportunities.create') }}" class="inline-flex items-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-lg">
                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-                新建商机
+                {{ __('opportunities.common_create_opportunity') }}
             </a>
         </div>
     </div>
@@ -60,11 +60,11 @@
                                 <!-- 卡片内容 -->
                                 <div class="space-y-1.5">
                                     <div class="flex items-center justify-between">
-                                        <span class="text-xs text-gray-500">{{ $opp->company?->name ?? '无公司' }}</span>
+                                        <span class="text-xs text-gray-500">{{ $opp->company?->name ?? __('opportunities.board_no_company') }}</span>
                                         <span class="text-sm font-bold text-green-600">¥{{ number_format($opp->value ?? 0, 0) }}</span>
                                     </div>
                                     <div class="flex items-center justify-between text-xs text-gray-500">
-                                        <span>预计：{{ $opp->expected_close_date?->format('m/d') ?? '-' }}</span>
+                                        <span>{{ __('opportunities.board_expected_prefix') }}{{ $opp->expected_close_date?->format('m/d') ?? '-' }}</span>
                                         <span class="px-1.5 py-0.5 rounded bg-gray-100">{{ $opp->probability ?? 0 }}%</span>
                                     </div>
                                     <div class="flex items-center text-xs text-gray-500">
@@ -90,7 +90,7 @@
                         @empty
                             <!-- 空状态提示 -->
                             <div class="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center text-gray-400 text-sm">
-                                暂无商机
+                                {{ __('opportunities.common_empty') }}
                             </div>
                         @endforelse
                     </div>
@@ -99,7 +99,7 @@
 
             @if($stages->isEmpty())
                 <div class="w-full text-center py-12 text-gray-500">
-                    <p class="text-sm">暂无阶段数据，请先创建商机阶段</p>
+                    <p class="text-sm">{{ __('opportunities.board_no_stages') }}</p>
                 </div>
             @endif
         </div>
@@ -112,8 +112,8 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
             </svg>
             <div class="text-sm text-blue-700">
-                <p class="font-medium">看板使用提示</p>
-                <p class="mt-0.5 text-blue-600">直接拖拽卡片即可改变商机的阶段。如果浏览器不支持拖拽，鼠标悬停卡片会显示下拉框快速切换阶段。</p>
+                <p class="font-medium">{{ __('opportunities.board_hint_title') }}</p>
+                <p class="mt-0.5 text-blue-600">{{ __('opportunities.board_hint_body') }}</p>
             </div>
         </div>
     </div>

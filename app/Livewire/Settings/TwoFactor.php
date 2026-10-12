@@ -29,7 +29,7 @@ class TwoFactor extends Component
         $user = auth()->user();
 
         if ($user->hasTwoFactorEnabled()) {
-            $this->addError('code', '两步验证已启用。');
+            $this->addError('code', __('settings_security.flash_already_enabled'));
             return;
         }
 
@@ -51,14 +51,14 @@ class TwoFactor extends Component
         $user = auth()->user();
 
         if (! $this->pendingSecret || $user->hasTwoFactorEnabled()) {
-            $this->addError('code', '没有待确认的两步验证配置。');
+            $this->addError('code', __('settings_security.flash_no_pending'));
             return;
         }
 
         $service = app(TwoFactorService::class);
 
         if (! $service->verify($this->pendingSecret, $this->code)) {
-            $this->addError('code', '动态验证码不正确，请确认认证器时间正确后重试。');
+            $this->addError('code', __('settings_security.flash_code_invalid'));
             return;
         }
 
@@ -81,7 +81,7 @@ class TwoFactor extends Component
         $user = auth()->user();
 
         if (! Hash::check($this->password, $user->password)) {
-            $this->addError('password', '密码不正确。');
+            $this->addError('password', __('settings_security.flash_password_wrong'));
             return;
         }
 
@@ -106,7 +106,7 @@ class TwoFactor extends Component
         }
 
         if (! Hash::check($this->password, $user->password)) {
-            $this->addError('password', '密码不正确。');
+            $this->addError('password', __('settings_security.flash_password_wrong'));
             return;
         }
 
@@ -123,6 +123,6 @@ class TwoFactor extends Component
 
     public function render()
     {
-        return view('livewire.settings.two-factor')->layout('layouts.app', ['title' => '安全设置']);
+        return view('livewire.settings.two-factor')->layout('layouts.app', ['title' => __('settings_security.title')]);
     }
 }

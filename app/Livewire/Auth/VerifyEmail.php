@@ -25,7 +25,7 @@ class VerifyEmail extends Component
             $user->sendEmailVerificationNotification();
         }
 
-        session()->flash('success', '验证邮件已重新发送，请查收。');
+        session()->flash('success', __('auth.verification_resent'));
     }
 
     public function render()

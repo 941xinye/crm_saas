@@ -24,7 +24,7 @@ class Reports extends Component
             'performance' => $performance,
             'trend' => $trend,
             'stageBreakdown' => $stageBreakdown,
-        ])->layout('layouts.app', ['title' => '数据报表']);
+        ])->layout('layouts.app', ['title' => __('reports.title')]);
     }
 
     /**
@@ -47,10 +47,10 @@ class Reports extends Component
         }
 
         $names = [
-            'trend' => '月度趋势',
-            'performance' => '团队业绩',
-            'stage' => '阶段金额分布',
-            'funnel' => '销售漏斗',
+            'trend' => __('reports.trend_title'),
+            'performance' => __('reports.performance_title'),
+            'stage' => __('reports.stage_title'),
+            'funnel' => __('reports.funnel_title'),
         ];
 
         return app(CsvService::class)->downloadReport($names[$dataset] . '.csv', $rows);
@@ -63,11 +63,11 @@ class Reports extends Component
 
         foreach ($trend['labels'] as $i => $label) {
             $rows[] = [
-                '月份' => $label,
-                '新增线索' => $trend['leads'][$i] ?? 0,
-                '新增公司' => $trend['companies'][$i] ?? 0,
-                '新增商机' => $trend['opportunities'][$i] ?? 0,
-                '商机总额' => $trend['values'][$i] ?? 0,
+                __('reports.csv_month') => $label,
+                __('reports.new_leads') => $trend['leads'][$i] ?? 0,
+                __('reports.new_companies') => $trend['companies'][$i] ?? 0,
+                __('reports.new_opportunities') => $trend['opportunities'][$i] ?? 0,
+                __('reports.total_value') => $trend['values'][$i] ?? 0,
             ];
         }
 
@@ -78,11 +78,11 @@ class Reports extends Component
     {
         return collect($service->performanceByOwner())
             ->map(fn ($p) => [
-                '负责人' => $p['user_name'],
-                '商机数' => $p['opp_count'],
-                '成交额' => $p['total_value'],
-                '赢单数' => $p['won_count'],
-                '赢率(%)' => $p['win_rate'],
+                __('reports.owner') => $p['user_name'],
+                __('reports.opp_count') => $p['opp_count'],
+                __('reports.closed_value') => $p['total_value'],
+                __('reports.won_count') => $p['won_count'],
+                __('reports.csv_win_rate') => $p['win_rate'],
             ])
             ->all();
     }
@@ -91,9 +91,9 @@ class Reports extends Component
     {
         return collect($service->stageBreakdown())
             ->map(fn ($s) => [
-                '阶段' => $s['stage_name'],
-                '商机数' => $s['count'],
-                '金额合计' => $s['total_value'],
+                __('reports.stage') => $s['stage_name'],
+                __('reports.opp_count') => $s['count'],
+                __('reports.csv_amount_total') => $s['total_value'],
             ])
             ->all();
     }
@@ -103,11 +103,11 @@ class Reports extends Component
         $funnel = $service->funnel();
 
         return [
-            ['指标' => '线索总数', '数值' => $funnel['total_leads']],
-            ['指标' => '联系人总数', '数值' => $funnel['total_contacts']],
-            ['指标' => '商机总数', '数值' => $funnel['total_opportunities']],
-            ['指标' => '已转化线索', '数值' => $funnel['converted_leads']],
-            ['指标' => '线索→客户转化率(%)', '数值' => $funnel['conversion_rate']],
+            [__('reports.csv_metric') => __('reports.total_leads'), __('reports.csv_value') => $funnel['total_leads']],
+            [__('reports.csv_metric') => __('reports.total_contacts'), __('reports.csv_value') => $funnel['total_contacts']],
+            [__('reports.csv_metric') => __('reports.total_opportunities'), __('reports.csv_value') => $funnel['total_opportunities']],
+            [__('reports.csv_metric') => __('reports.converted_leads'), __('reports.csv_value') => $funnel['converted_leads']],
+            [__('reports.csv_metric') => __('reports.conversion_rate'), __('reports.csv_value') => $funnel['conversion_rate']],
         ];
     }
 }

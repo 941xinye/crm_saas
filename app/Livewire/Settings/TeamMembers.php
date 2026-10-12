@@ -18,18 +18,18 @@ class TeamMembers extends Component
     {
         $user = $this->findTenantUser($userId);
         $user->update(['role' => $role]);
-        session()->flash('success', "已将 {$user->name} 的角色更新为 {$role}");
+        session()->flash('success', __('settings_team.flash_role_updated', ['name' => $user->name, 'role' => $role]));
     }
 
     public function removeMember(int $userId): void
     {
         $user = $this->findTenantUser($userId);
         if ($user->id === auth()->id()) {
-            session()->flash('error', '您不能移除自己');
+            session()->flash('error', __('settings_team.flash_cannot_remove_self'));
             return;
         }
         $user->delete();
-        session()->flash('success', "已移除成员 {$user->name}");
+        session()->flash('success', __('settings_team.flash_member_removed', ['name' => $user->name]));
     }
 
     /**
@@ -40,7 +40,7 @@ class TeamMembers extends Component
         $tenant = app(Tenancy::class)->current();
 
         if (! $tenant || auth()->user()->role !== 'admin') {
-            session()->flash('error', '无权执行此操作');
+            session()->flash('error', __('settings_team.flash_unauthorized'));
             return;
         }
 
@@ -54,7 +54,7 @@ class TeamMembers extends Component
             ->where('tenant_id', $tenant->id)
             ->exists();
         if ($existing) {
-            $this->addError('inviteEmail', '该邮箱已是本团队成员');
+            $this->addError('inviteEmail', __('settings_team.error_email_already_member'));
             return;
         }
 
@@ -64,7 +64,7 @@ class TeamMembers extends Component
             ->where('email', $this->inviteEmail)
             ->exists();
         if ($pending) {
-            $this->addError('inviteEmail', '该邮箱已有待接受的邀请');
+            $this->addError('inviteEmail', __('settings_team.error_email_already_invited'));
             return;
         }
 
@@ -78,7 +78,7 @@ class TeamMembers extends Component
             ));
 
         $this->reset('inviteEmail', 'inviteRole');
-        session()->flash('success', "邀请已发送至 {$invitation->email}");
+        session()->flash('success', __('settings_team.flash_invitation_sent', ['email' => $invitation->email]));
     }
 
     /**
@@ -89,7 +89,7 @@ class TeamMembers extends Component
         $tenant = app(Tenancy::class)->current();
 
         if (! $tenant || auth()->user()->role !== 'admin') {
-            session()->flash('error', '无权执行此操作');
+            session()->flash('error', __('settings_team.flash_unauthorized'));
             return;
         }
 
@@ -99,7 +99,7 @@ class TeamMembers extends Component
         $email = $invitation->email;
         $invitation->delete();
 
-        session()->flash('success', "已取消对 {$email} 的邀请");
+        session()->flash('success', __('settings_team.flash_invitation_cancelled', ['email' => $email]));
     }
 
     /**
@@ -126,6 +126,6 @@ class TeamMembers extends Component
         return view('livewire.settings.team-members', [
             'users'               => $users,
             'pendingInvitations' => $pendingInvitations,
-        ])->layout('layouts.app', ['title' => '团队成员']);
+        ])->layout('layouts.app', ['title' => __('settings_team.title')]);
     }
 }

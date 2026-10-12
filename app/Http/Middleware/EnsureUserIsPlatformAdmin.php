@@ -11,7 +11,7 @@ class EnsureUserIsPlatformAdmin
     public function handle(Request $request, Closure $next): Response
     {
         if (!$request->user()?->is_platform_admin) {
-            abort(403, '仅限平台管理员访问');
+            abort(403, __('api.auth_platform_admin_only'));
         }
 
         return $next($request);

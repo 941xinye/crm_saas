@@ -33,7 +33,7 @@ class Index extends Component
             'is_lost' => false, // 赢/输互斥
         ]);
 
-        session()->flash('success', "阶段「{$stage->name}」赢单标记已更新");
+        session()->flash('success', __('stages.won_updated', ['name' => $stage->name]));
     }
 
     public function toggleLost(int $id): void
@@ -46,7 +46,7 @@ class Index extends Component
             'is_won' => false, // 赢/输互斥
         ]);
 
-        session()->flash('success', "阶段「{$stage->name}」输单标记已更新");
+        session()->flash('success', __('stages.lost_updated', ['name' => $stage->name]));
     }
 
     /**
@@ -77,12 +77,12 @@ class Index extends Component
 
         $oppCount = $stage->opportunities()->count();
         if ($oppCount > 0) {
-            session()->flash('error', "阶段「{$stage->name}」下还有 {$oppCount} 个商机，无法删除");
+            session()->flash('error', __('stages.delete_blocked', ['name' => $stage->name, 'count' => $oppCount]));
             return;
         }
 
         $stage->delete();
-        session()->flash('success', "阶段「{$stage->name}」已删除");
+        session()->flash('success', __('stages.deleted', ['name' => $stage->name]));
     }
 
     public function render()
@@ -95,6 +95,6 @@ class Index extends Component
 
         return view('livewire.stages.index', [
             'stages' => $stages,
-        ])->layout('layouts.app', ['title' => '商机阶段']);
+        ])->layout('layouts.app', ['title' => __('stages.title')]);
     }
 }

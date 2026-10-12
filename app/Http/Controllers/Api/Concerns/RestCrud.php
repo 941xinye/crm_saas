@@ -108,7 +108,7 @@ trait RestCrud
         if (isset($this->ownerColumn)) {
             $user = $request->user();
             if ($user && ! $user->canSeeAllRecords() && $model->{$this->ownerColumn} !== $user->id) {
-                abort(403, '无权操作此资源');
+                abort(403, __('api.crud_forbidden_resource'));
             }
         }
 
@@ -137,7 +137,7 @@ trait RestCrud
         if (isset($this->ownerColumn)) {
             $user = request()->user();
             if ($user && ! $user->canSeeAllRecords() && $model->{$this->ownerColumn} !== $user->id) {
-                abort(403, '无权操作此资源');
+                abort(403, __('api.crud_forbidden_resource'));
             }
         }
 

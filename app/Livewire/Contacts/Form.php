@@ -56,7 +56,7 @@ class Form extends Component
         }
 
         $this->duplicateWarning = $query->exists()
-            ? "租户内已存在邮箱为 {$email} 的联系人（邮箱唯一，保存将被拒绝）"
+            ? __('contacts.duplicate_email_warning', ['email' => $email])
             : null;
     }
 
@@ -88,11 +88,11 @@ class Form extends Component
 
         if ($this->contact->exists) {
             $this->contact->update($data);
-            session()->flash('success', '联系人已更新');
+            session()->flash('success', __('contacts.updated'));
         } else {
             app(PlanService::class)->ensureCanCreate(app(Tenancy::class)->current(), 'contacts');
             Contact::create($data);
-            session()->flash('success', '联系人已创建');
+            session()->flash('success', __('contacts.created'));
         }
         $this->redirect(route('contacts.index'), navigate: true);
     }
@@ -101,6 +101,6 @@ class Form extends Component
     {
         $companies = Company::orderBy('name')->get();
         return view('livewire.contacts.form', ['companies' => $companies])
-            ->layout('layouts.app', ['title' => ($this->contact ? '编辑' : '新建') . '联系人']);
+            ->layout('layouts.app', ['title' => $this->contact ? __('contacts.form_edit_title') : __('contacts.form_create_title')]);
     }
 }

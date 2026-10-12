@@ -1,8 +1,8 @@
 <!-- 邮箱验证提示页 -->
 <div>
-    <h2 class="text-2xl font-bold text-gray-900 text-center mb-2">验证您的邮箱</h2>
+    <h2 class="text-2xl font-bold text-gray-900 text-center mb-2">{{ __('auth.verify_email_title') }}</h2>
     <p class="text-gray-500 text-center text-sm mb-6">
-        我们已向您的注册邮箱发送了验证链接，请查收并点击链接完成验证。
+        {{ __('auth.verify_email_hint') }}
     </p>
 
     @if (session('success'))
@@ -17,8 +17,8 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
             </svg>
             <div class="text-sm text-blue-700">
-                <p class="font-medium mb-1">未收到邮件？</p>
-                <p>请检查垃圾邮件文件夹，或点击下方按钮重新发送验证邮件。</p>
+                <p class="font-medium mb-1">{{ __('auth.no_email_received') }}</p>
+                <p>{{ __('auth.check_spam_hint') }}</p>
             </div>
         </div>
     </div>
@@ -30,7 +30,7 @@
         wire:loading.attr="disabled"
         class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2.5 rounded-lg transition-colors focus:ring-4 focus:ring-indigo-300 disabled:opacity-50 mb-3"
     >
-        <span wire:loading.remove>重新发送验证邮件</span>
+        <span wire:loading.remove>{{ __('auth.resend_verification_email') }}</span>
         <span wire:loading class="flex items-center justify-center">
             <svg class="animate-spin h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -44,7 +44,7 @@
         <form method="POST" action="{{ route('logout') }}">
             @csrf
             <button type="submit" class="text-sm text-gray-500 hover:text-gray-700 font-medium">
-                退出登录
+                {{ __('auth.logout') }}
             </button>
         </form>
     </div>

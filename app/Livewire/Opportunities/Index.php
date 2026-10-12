@@ -56,7 +56,7 @@ class Index extends Component
         $o = Opportunity::findOrFail($id);
         $this->authorize('delete', $o);
         $o->delete();
-        session()->flash('success', "商机「{$o->title}」已删除");
+        session()->flash('success', __('opportunities.index_deleted', ['title' => $o->title]));
     }
 
     /**
@@ -67,7 +67,7 @@ class Index extends Component
         $o = Opportunity::onlyTrashed()->findOrFail($id);
         $this->authorize('restore', $o);
         $o->restore();
-        session()->flash('success', "商机「{$o->title}」已恢复");
+        session()->flash('success', __('opportunities.index_restored', ['title' => $o->title]));
     }
 
     /**
@@ -79,7 +79,7 @@ class Index extends Component
         $this->authorize('forceDelete', $o);
         $title = $o->title;
         $o->forceDelete();
-        session()->flash('success', "商机「{$title}」已彻底删除");
+        session()->flash('success', __('opportunities.index_force_deleted', ['title' => $title]));
     }
 
     /**
@@ -88,7 +88,7 @@ class Index extends Component
     public function bulkDelete(): void
     {
         if (empty($this->selected)) {
-            session()->flash('error', '请先选择要删除的商机');
+            session()->flash('error', __('opportunities.index_error_select_for_delete'));
             return;
         }
 
@@ -106,7 +106,7 @@ class Index extends Component
         });
 
         $this->selected = [];
-        session()->flash('success', "已批量删除 {$count} 条商机");
+        session()->flash('success', __('opportunities.index_bulk_deleted', ['count' => $count]));
     }
 
     /**
@@ -115,11 +115,11 @@ class Index extends Component
     public function bulkUpdateStage(): void
     {
         if (empty($this->selected)) {
-            session()->flash('error', '请先选择要操作的商机');
+            session()->flash('error', __('opportunities.index_error_select'));
             return;
         }
         if (!$this->bulk_stage) {
-            session()->flash('error', '请先选择目标阶段');
+            session()->flash('error', __('opportunities.index_error_select_stage'));
             return;
         }
 
@@ -141,7 +141,7 @@ class Index extends Component
 
         $this->selected = [];
         $this->bulk_stage = null;
-        session()->flash('success', "已将 {$count} 条商机的阶段更新为「{$stage->name}」");
+        session()->flash('success', __('opportunities.index_bulk_stage_updated', ['count' => $count, 'stage' => $stage->name]));
     }
 
     /**
@@ -150,11 +150,11 @@ class Index extends Component
     public function bulkUpdateOwner(): void
     {
         if (empty($this->selected)) {
-            session()->flash('error', '请先选择要操作的商机');
+            session()->flash('error', __('opportunities.index_error_select'));
             return;
         }
         if (!$this->bulk_owner) {
-            session()->flash('error', '请先选择目标负责人');
+            session()->flash('error', __('opportunities.index_error_select_owner'));
             return;
         }
 
@@ -176,17 +176,17 @@ class Index extends Component
 
         $this->selected = [];
         $this->bulk_owner = null;
-        session()->flash('success', "已将 {$count} 条商机的负责人更新为「{$owner->name}」");
+        session()->flash('success', __('opportunities.index_bulk_owner_updated', ['count' => $count, 'owner' => $owner->name]));
     }
 
     public function export()
     {
-        return app(CsvService::class)->download(Opportunity::class, '商机_' . now()->format('Y-m-d') . '.csv');
+        return app(CsvService::class)->download(Opportunity::class, __('opportunities.index_export_filename', ['date' => now()->format('Y-m-d')]));
     }
 
     public function downloadTemplate()
     {
-        return app(CsvService::class)->templateDownload(Opportunity::class, '商机_导入模板.csv');
+        return app(CsvService::class)->templateDownload(Opportunity::class, __('opportunities.index_template_filename'));
     }
 
     public function import(): void
@@ -207,20 +207,21 @@ class Index extends Component
 
         $this->importFile = null;
 
-        $dupNote = ($result['duplicates'] ?? 0) > 0 ? "，跳过重复 " . ($result['duplicates'] ?? 0) . " 条" : '';
+        $dupNote = ($result['duplicates'] ?? 0) > 0 ? __('opportunities.index_import_duplicates', ['count' => $result['duplicates'] ?? 0]) : '';
 
         if ($result['errors'] === []) {
-            session()->flash('success', "导入成功：{$result['created']} 条商机{$dupNote}");
+            session()->flash('success', __('opportunities.index_import_success', ['count' => $result['created']]) . $dupNote);
         } else {
-            session()->flash('error', sprintf(
-                "导入完成：成功 {$result['created']} 条{$dupNote}，失败 %d 条。<br>错误详情：%s",
-                count($result['errors']),
-                implode('<br>', array_map(
-                    fn ($row, $msg) => "行 {$row}：{$msg}",
+            session()->flash('error', __('opportunities.index_import_failed_summary', [
+                'created' => $result['created'],
+                'duplicated' => $dupNote,
+                'failed' => count($result['errors']),
+                'details' => implode('<br>', array_map(
+                    fn ($row, $msg) => __('opportunities.index_import_error_row', ['row' => $row, 'message' => $msg]),
                     array_keys($result['errors']),
                     $result['errors'],
                 )),
-            ));
+            ]));
         }
     }
 
@@ -250,6 +251,6 @@ class Index extends Component
             'stages' => $stages,
             'owners' => $owners,
             'cfDefinitions' => app(\App\Services\CustomFieldService::class)->definitions('opportunity'),
-        ])->layout('layouts.app', ['title' => '商机']);
+        ])->layout('layouts.app', ['title' => __('opportunities.common_opportunity')]);
     }
 }

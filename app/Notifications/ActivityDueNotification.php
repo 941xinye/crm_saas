@@ -25,19 +25,19 @@ class ActivityDueNotification extends Notification
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-            ->subject("活动到期提醒：{$this->activitySubject}")
-            ->greeting('您好！')
-            ->line("您有一个活动将于 {$this->scheduledAt} 到期：")
+            ->subject(__('notifications.activity_due.mail_subject', ['activity_subject' => $this->activitySubject]))
+            ->greeting(__('notifications.greeting'))
+            ->line(__('notifications.activity_due.mail_intro', ['scheduled_at' => $this->scheduledAt]))
             ->line("**{$this->activitySubject}**")
-            ->action('查看活动', $this->resourceUrl)
-            ->line('请及时处理。');
+            ->action(__('notifications.activity_due.action'), $this->resourceUrl)
+            ->line(__('notifications.activity_due.mail_footer'));
     }
 
     public function toDatabase(object $notifiable): array
     {
         return [
             'type' => 'activity_due',
-            'message' => "活动「{$this->activitySubject}」将于 {$this->scheduledAt} 到期",
+            'message' => __('notifications.activity_due.db_message', ['activity_subject' => $this->activitySubject, 'scheduled_at' => $this->scheduledAt]),
             'activity_id' => $this->activityId,
             'activity_subject' => $this->activitySubject,
             'scheduled_at' => $this->scheduledAt,

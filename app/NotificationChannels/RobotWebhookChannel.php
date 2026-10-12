@@ -33,7 +33,7 @@ class RobotWebhookChannel
             $link = (string) ($payload['url'] ?? '');
 
             if ($link !== '') {
-                $text .= "\n查看详情：{$link}";
+                $text .= "\n" . __('notifications.view_details', ['url' => $link]);
             }
 
             $body = $this->buildBody($type, $text);
@@ -67,16 +67,16 @@ class RobotWebhookChannel
             // 钉钉群机器人（安全设置含自定义关键词时，建议机器人关键词设为「CRM」）
             'dingtalk' => [
                 'msgtype' => 'text',
-                'text' => ['content' => "CRM通知\n{$text}"],
+                'text' => ['content' => __('notifications.robot_title') . "\n{$text}"],
             ],
             // 企业微信群机器人
             'wecom' => [
                 'msgtype' => 'text',
-                'text' => ['content' => "CRM通知\n{$text}"],
+                'text' => ['content' => __('notifications.robot_title') . "\n{$text}"],
             ],
             // Slack Incoming Webhook
             'slack' => [
-                'text' => "CRM通知\n{$text}",
+                'text' => __('notifications.robot_title') . "\n{$text}",
             ],
             default => null,
         };

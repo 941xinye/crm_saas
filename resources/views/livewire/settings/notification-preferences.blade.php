@@ -1,7 +1,7 @@
 <div class="max-w-2xl space-y-6">
     <div>
-        <h1 class="text-2xl font-bold text-gray-900">通知偏好</h1>
-        <p class="text-sm text-gray-500 mt-1">选择您希望接收的提醒类型，关闭后该类提醒不再发给您</p>
+        <h1 class="text-2xl font-bold text-gray-900">{{ __('settings_notifpref.title') }}</h1>
+        <p class="text-sm text-gray-500 mt-1">{{ __('settings_notifpref.subtitle') }}</p>
     </div>
 
     @if(session('success'))
@@ -24,7 +24,7 @@
             @endforeach
 
             <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-6 py-2.5 rounded-lg">
-                保存偏好
+                {{ __('settings_notifpref.save_btn') }}
             </button>
         </form>
     </div>

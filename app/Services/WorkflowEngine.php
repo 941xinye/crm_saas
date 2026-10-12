@@ -147,7 +147,7 @@ class WorkflowEngine
             'user_id' => $params['owner_id'] ?? $model->owner_id ?? auth()->id(),
             'type' => in_array($params['type'] ?? null, ['call', 'email', 'meeting', 'note', 'task'], true)
                 ? $params['type'] : 'task',
-            'subject' => $params['subject'] ?? '自动跟进任务',
+            'subject' => $params['subject'] ?? __('settings_automation.default_subject'),
             'notes' => $params['notes'] ?? null,
             'scheduled_at' => isset($params['scheduled_at']) ? $this->parseDate($params['scheduled_at']) : now()->addDay(),
         ]);
@@ -179,7 +179,7 @@ class WorkflowEngine
         if (! $owner) {
             return;
         }
-        $owner->notify(new \App\Notifications\AutomationTriggeredNotification($params['message'] ?? '自动化工作流已触发', [
+        $owner->notify(new \App\Notifications\AutomationTriggeredNotification($params['message'] ?? __('settings_automation.default_notify_message'), [
             'model_class' => get_class($model),
             'model_id' => $model->id,
         ]));
@@ -276,7 +276,9 @@ class WorkflowEngine
                 return array_map($resolve, $value);
             }
             if (is_string($value)) {
-                return strtr($value, $replacements);
+                // config 值若是翻译键则先翻译（缺失键原样返回，DB 自定义文案不受影响），
+                // 再替换 {field} 占位符——翻译值中的 {title} / {stalled_days} 仍由 strtr 处理
+                return strtr(__($value), $replacements);
             }
 
             return $value;

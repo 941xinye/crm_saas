@@ -39,13 +39,13 @@ class AcceptInvitation extends Component
         ]);
 
         if (! $this->invitation || ! $this->invitation->isValid()) {
-            session()->flash('error', '邀请已失效或已被接受');
+            session()->flash('error', __('auth.invitation_invalid_or_accepted'));
             return;
         }
 
         // 检查邮箱是否已注册
         if (User::where('email', $this->invitation->email)->exists()) {
-            session()->flash('error', '该邮箱已注册，请先登录后再接受邀请。');
+            session()->flash('error', __('auth.email_registered_login_first'));
             return;
         }
 

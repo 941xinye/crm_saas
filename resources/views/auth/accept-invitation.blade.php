@@ -8,26 +8,26 @@
 
     @if(!$invitation)
         {{-- 邀请不存在 --}}
-        <h2 class="text-2xl font-bold text-gray-900 text-center mb-2">邀请不存在</h2>
+        <h2 class="text-2xl font-bold text-gray-900 text-center mb-2">{{ __('auth.invitation_not_found') }}</h2>
         <p class="text-gray-500 text-center text-sm mb-6">
-            未找到此邀请，可能链接已失效。
+            {{ __('auth.invitation_not_found_hint') }}
         </p>
         <div class="text-center">
-            <a href="{{ route('login') }}" class="text-sm text-indigo-600 hover:text-indigo-500 font-medium">返回登录</a>
+            <a href="{{ route('login') }}" class="text-sm text-indigo-600 hover:text-indigo-500 font-medium">{{ __('auth.back_to_login') }}</a>
         </div>
 
     @elseif(!$invitation->isValid())
         {{-- 邀请已失效 --}}
-        <h2 class="text-2xl font-bold text-gray-900 text-center mb-2">邀请已失效</h2>
+        <h2 class="text-2xl font-bold text-gray-900 text-center mb-2">{{ __('auth.invitation_invalid') }}</h2>
         <p class="text-gray-500 text-center text-sm mb-6">
             @if($invitation->isAccepted())
-                此邀请已被接受。
+                {{ __('auth.invitation_accepted') }}
             @else
-                此邀请已过期，请联系管理员重新发送。
+                {{ __('auth.invitation_expired') }}
             @endif
         </p>
         <div class="text-center">
-            <a href="{{ route('login') }}" class="text-sm text-indigo-600 hover:text-indigo-500 font-medium">返回登录</a>
+            <a href="{{ route('login') }}" class="text-sm text-indigo-600 hover:text-indigo-500 font-medium">{{ __('auth.back_to_login') }}</a>
         </div>
 
     @else
@@ -38,28 +38,28 @@
 
         @if($existingUser)
             {{-- 邮箱已注册 --}}
-            <h2 class="text-2xl font-bold text-gray-900 text-center mb-2">接受邀请</h2>
+            <h2 class="text-2xl font-bold text-gray-900 text-center mb-2">{{ __('auth.accept_invitation') }}</h2>
             <p class="text-gray-500 text-center text-sm mb-6">
-                该邮箱 ({{ $invitation->email }}) 已注册。
+                {{ __('auth.email_already_registered', ['email' => $invitation->email]) }}
                 @if($existingUser->tenant_id === $invitation->tenant_id)
-                    您已是「{{ $invitation->tenant?->name }}」的成员。
+                    {{ __('auth.already_member', ['tenant' => $invitation->tenant?->name]) }}
                 @else
-                    请先<a href="{{ route('login') }}" class="text-indigo-600 hover:text-indigo-500 font-medium">登录</a>后接受邀请。
+                    {{ __('auth.please_login_first') }}<a href="{{ route('login') }}" class="text-indigo-600 hover:text-indigo-500 font-medium">{{ __('auth.login') }}</a>{{ __('auth.then_accept_invitation') }}
                 @endif
             </p>
             @if($existingUser->tenant_id === $invitation->tenant_id)
                 <div class="text-center">
                     <a href="{{ route('login') }}" class="inline-block w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2.5 rounded-lg transition-colors">
-                        前往登录
+                        {{ __('auth.go_to_login') }}
                     </a>
                 </div>
             @endif
         @else
             {{-- 注册新账号 --}}
-            <h2 class="text-2xl font-bold text-gray-900 text-center mb-2">接受邀请</h2>
+            <h2 class="text-2xl font-bold text-gray-900 text-center mb-2">{{ __('auth.accept_invitation') }}</h2>
             <p class="text-gray-500 text-center text-sm mb-6">
-                您被邀请加入「<span class="font-medium text-gray-700">{{ $invitation->tenant?->name }}</span>」团队
-                （角色：{{ match($invitation->role) { 'admin' => '管理员', 'manager' => '经理', 'sales' => '销售', default => $invitation->role } }}）
+                {{ __('auth.invited_to_team_prefix') }}<span class="font-medium text-gray-700">{{ $invitation->tenant?->name }}</span>{{ __('auth.invited_to_team_suffix') }}
+                {{ __('auth.role_is', ['role' => match($invitation->role) { 'admin' => __('auth.role_admin'), 'manager' => __('auth.role_manager'), 'sales' => __('auth.role_sales'), default => $invitation->role }]) }}
             </p>
 
             @if(session('error'))
@@ -71,42 +71,42 @@
             <form wire:submit="register" class="space-y-4">
                 <!-- 邮箱（只读） -->
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">邮箱</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">{{ __('auth.email_field') }}</label>
                     <input type="email" value="{{ $invitation->email }}" disabled
                            class="w-full px-4 py-2.5 border border-gray-300 rounded-lg bg-gray-50 text-gray-500">
                 </div>
 
                 <!-- 姓名 -->
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">姓名</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">{{ __('auth.name_label') }}</label>
                     <input wire:model="name" type="text"
                            class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
-                           placeholder="您的姓名" autocomplete="name">
+                           placeholder="{{ __('auth.your_name') }}" autocomplete="name">
                     @error('name') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
                 </div>
 
                 <!-- 密码 -->
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">密码</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">{{ __('auth.password') }}</label>
                     <input wire:model="password" type="password"
                            class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
-                           placeholder="至少 8 位" autocomplete="new-password">
+                           placeholder="{{ __('auth.password_min_hint') }}" autocomplete="new-password">
                     @error('password') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
                 </div>
 
                 <!-- 确认密码 -->
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">确认密码</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">{{ __('auth.confirm_password') }}</label>
                     <input wire:model="password_confirmation" type="password"
                            class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
-                           placeholder="再次输入密码" autocomplete="new-password">
+                           placeholder="{{ __('auth.password_confirmation_placeholder') }}" autocomplete="new-password">
                     @error('password_confirmation') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
                 </div>
 
                 <button type="submit"
                         class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2.5 rounded-lg transition-colors focus:ring-4 focus:ring-indigo-300 disabled:opacity-50"
                         wire:loading.attr="disabled">
-                    <span wire:loading.remove>注册并接受邀请</span>
+                    <span wire:loading.remove>{{ __('auth.register_and_accept') }}</span>
                     <span wire:loading class="flex items-center justify-center">
                         <svg class="animate-spin h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
                             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>

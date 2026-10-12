@@ -1,0 +1,33 @@
+<?php
+
+// English translations: settings - custom fields
+return [
+    'title' => 'Custom Fields',
+    'subtitle' => 'Define extra fields for companies / contacts / opportunities. Forms, detail pages and the API take effect immediately after saving.',
+    'add_field_btn' => '+ Add Field',
+    'empty' => 'No custom fields defined yet. Click "Add Field" in the top right to get started.',
+    'entity' => 'Entity',
+    'entity_company' => 'Company',
+    'entity_contact' => 'Contact',
+    'entity_opportunity' => 'Opportunity',
+    'type_text' => 'Single-line text',
+    'type_textarea' => 'Multi-line text',
+    'type_number' => 'Number',
+    'type_date' => 'Date',
+    'type_select' => 'Dropdown',
+    'type_multiselect' => 'Multi-select',
+    'key_label' => 'Key',
+    'key_placeholder' => 'e.g. customer_level',
+    'display_name' => 'Display Name',
+    'display_name_placeholder' => 'e.g. Customer Level',
+    'type' => 'Type',
+    'options_label' => 'Options (comma-separated, required for dropdown/multi-select)',
+    'options_placeholder' => 'e.g. A,B,C',
+    'required' => 'Required',
+    'delete' => 'Delete',
+    'save_btn' => 'Save Definitions',
+    'saving' => 'Saving...',
+    'key_hint' => 'Keys allow letters, numbers and underscores only; they are normalized and deduplicated on save',
+    'flash_only_admin' => 'Only tenant admins can modify custom fields',
+    'flash_saved' => 'Custom field definitions saved',
+];

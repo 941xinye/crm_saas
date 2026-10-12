@@ -85,6 +85,6 @@ class GlobalSearch extends Component
             'results' => $results,
             'total' => $total,
             'term' => $term,
-        ])->layout('layouts.app', ['title' => '全局搜索']);
+        ])->layout('layouts.app', ['title' => __('misc.global_search')]);
     }
 }

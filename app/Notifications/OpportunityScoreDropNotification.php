@@ -26,17 +26,25 @@ class OpportunityScoreDropNotification extends Notification
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-            ->subject("商机评分骤降：{$this->title}")
-            ->greeting('您好！')
-            ->line("商机「{$this->title}」的智能评分由 {$this->oldScore} 降至 {$this->newScore}，可能存在成交风险，建议尽快跟进。")
-            ->action('查看商机', route('opportunities.show', $this->opportunityId));
+            ->subject(__('notifications.opportunity_score_drop.mail_subject', ['title' => $this->title]))
+            ->greeting(__('notifications.greeting'))
+            ->line(__('notifications.opportunity_score_drop.mail_body', [
+                'title' => $this->title,
+                'old_score' => $this->oldScore,
+                'new_score' => $this->newScore,
+            ]))
+            ->action(__('notifications.opportunity_score_drop.action'), route('opportunities.show', $this->opportunityId));
     }
 
     public function toDatabase(object $notifiable): array
     {
         return [
             'type' => 'score_drop',
-            'message' => "商机「{$this->title}」评分由 {$this->oldScore} 降至 {$this->newScore}，建议尽快跟进",
+            'message' => __('notifications.opportunity_score_drop.db_message', [
+                'title' => $this->title,
+                'old_score' => $this->oldScore,
+                'new_score' => $this->newScore,
+            ]),
             'opportunity_id' => $this->opportunityId,
             'old_score' => $this->oldScore,
             'new_score' => $this->newScore,

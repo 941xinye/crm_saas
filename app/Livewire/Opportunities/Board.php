@@ -46,7 +46,7 @@ class Board extends Component
         $opp = Opportunity::find($opportunityId);
         if ($opp) {
             $opp->update(['stage_id' => $newStageId]);
-            session()->flash('success', '商机阶段已更新');
+            session()->flash('success', __('opportunities.board_stage_updated'));
         }
         $this->dispatch('refresh');
     }
@@ -61,6 +61,6 @@ class Board extends Component
         return view('livewire.opportunities.board', [
             'stages' => $stages,
             'totalValue' => $totalValue,
-        ])->layout('layouts.app', ['title' => '商机看板']);
+        ])->layout('layouts.app', ['title' => __('opportunities.board_title')]);
     }
 }

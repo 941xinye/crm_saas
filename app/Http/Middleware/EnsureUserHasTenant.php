@@ -25,7 +25,7 @@ class EnsureUserHasTenant
         }
 
         if (!$user->tenant) {
-            abort(403, '您尚未关联租户，请联系管理员');
+            abort(403, __('api.tenancy_no_tenant_contact_admin'));
         }
 
         app(Tenancy::class)->forUser($user);

@@ -48,6 +48,12 @@ class CustomFieldService
     {
     }
 
+    /** 实体显示名（随 locale 翻译；常量 ENTITY_LABELS 保留供既有外部调用方使用） */
+    private function entityLabel(string $entity): string
+    {
+        return __('services.custom_field_entity_' . $entity);
+    }
+
     /**
      * 某实体的字段定义列表。
      */
@@ -146,15 +152,15 @@ class CustomFieldService
                 continue; // 空行跳过
             }
             if ($key === '') {
-                return '字段标识（key）不能为空：「' . $label . '」';
+                return __('services.custom_field_key_required', ['label' => $label]);
             }
             if (! isset(self::ENTITIES[$entity]) || ! isset(self::TYPES[$type])) {
-                return '字段「' . $label . '」的实体或类型不合法';
+                return __('services.custom_field_invalid_entity_type', ['label' => $label]);
             }
 
             $seenKey = "{$entity}.{$key}";
             if (isset($seen[$seenKey])) {
-                return self::ENTITY_LABELS[$entity] . " 中存在重复字段标识：{$key}";
+                return __('services.custom_field_duplicate_key', ['entity' => $this->entityLabel($entity), 'key' => $key]);
             }
             $seen[$seenKey] = true;
 
@@ -162,7 +168,7 @@ class CustomFieldService
             if (in_array($type, ['select', 'multiselect'], true)) {
                 $options = array_values(array_filter(array_map('trim', explode(',', (string) ($row['options'] ?? '')))));
                 if ($options === []) {
-                    return self::ENTITY_LABELS[$entity] . " 字段「{$label}」为下拉/多选类型，必须填写选项（逗号分隔）";
+                    return __('services.custom_field_options_required', ['entity' => $this->entityLabel($entity), 'label' => $label]);
                 }
             }
 
@@ -196,7 +202,7 @@ class CustomFieldService
     public function displayValue(array $definition, mixed $value): string
     {
         if (is_array($value)) {
-            return implode('、', $value);
+            return implode(__('services.custom_field_multiselect_separator'), $value);
         }
 
         return (string) $value;

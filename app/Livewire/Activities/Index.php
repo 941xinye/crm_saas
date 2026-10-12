@@ -35,7 +35,7 @@ class Index extends Component
     {
         $a = Activity::findOrFail($id);
         $a->delete();
-        session()->flash('success', '活动已删除');
+        session()->flash('success', __('activities.deleted'));
     }
 
     /**
@@ -44,7 +44,7 @@ class Index extends Component
     public function bulkDelete(): void
     {
         if (empty($this->selected)) {
-            session()->flash('error', '请先选择要删除的活动');
+            session()->flash('error', __('activities.select_for_delete'));
             return;
         }
 
@@ -62,17 +62,17 @@ class Index extends Component
         });
 
         $this->selected = [];
-        session()->flash('success', "已批量删除 {$count} 条活动");
+        session()->flash('success', __('activities.bulk_deleted', ['count' => $count]));
     }
 
     public function export()
     {
-        return app(CsvService::class)->download(Activity::class, '活动_' . now()->format('Y-m-d') . '.csv');
+        return app(CsvService::class)->download(Activity::class, __('activities.export_filename', ['date' => now()->format('Y-m-d')]));
     }
 
     public function downloadTemplate()
     {
-        return app(CsvService::class)->templateDownload(Activity::class, '活动_导入模板.csv');
+        return app(CsvService::class)->templateDownload(Activity::class, __('activities.template_filename'));
     }
 
     public function import(): void
@@ -93,20 +93,21 @@ class Index extends Component
 
         $this->importFile = null;
 
-        $dupNote = ($result['duplicates'] ?? 0) > 0 ? "，跳过重复 " . ($result['duplicates'] ?? 0) . " 条" : '';
+        $dupNote = ($result['duplicates'] ?? 0) > 0 ? __('activities.import_duplicates_note', ['count' => $result['duplicates'] ?? 0]) : '';
 
         if ($result['errors'] === []) {
-            session()->flash('success', "导入成功：{$result['created']} 条活动{$dupNote}");
+            session()->flash('success', __('activities.import_success', ['created' => $result['created']]) . $dupNote);
         } else {
-            session()->flash('error', sprintf(
-                "导入完成：成功 {$result['created']} 条{$dupNote}，失败 %d 条。<br>错误详情：%s",
-                count($result['errors']),
-                implode('<br>', array_map(
-                    fn ($row, $msg) => "行 {$row}：{$msg}",
+            session()->flash('error',
+                __('activities.import_completed', ['created' => $result['created']])
+                . $dupNote
+                . __('activities.import_failed_part', ['count' => count($result['errors'])])
+                . implode('<br>', array_map(
+                    fn ($row, $msg) => __('activities.import_error_row', ['row' => $row, 'message' => $msg]),
                     array_keys($result['errors']),
                     $result['errors'],
-                )),
-            ));
+                ))
+            );
         }
     }
 
@@ -116,6 +117,6 @@ class Index extends Component
             ->when($this->search, fn ($q) => $q->where('subject', 'like', "%{$this->search}%"))
             ->orderByDesc('scheduled_at')->paginate(15);
         return view('livewire.activities.index', ['activities' => $activities])
-            ->layout('layouts.app', ['title' => '活动']);
+            ->layout('layouts.app', ['title' => __('activities.title')]);
     }
 }

@@ -25,17 +25,17 @@ class QueueFailureAlertNotification extends Notification
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-            ->subject("系统告警：发现 {$this->count} 个队列失败任务")
-            ->greeting('您好！')
-            ->line("过去 {$this->windowHours} 小时内新增 {$this->count} 个队列失败任务，请尽快排查。")
-            ->line('排查命令：`php artisan queue:failed`（查看详情）/ `php artisan queue:retry all`（全部重试）。');
+            ->subject(__('notifications.queue_failure.mail_subject', ['count' => $this->count]))
+            ->greeting(__('notifications.greeting'))
+            ->line(__('notifications.queue_failure.mail_body', ['window_hours' => $this->windowHours, 'count' => $this->count]))
+            ->line(__('notifications.queue_failure.mail_commands'));
     }
 
     public function toDatabase(object $notifiable): array
     {
         return [
             'type' => 'queue_failure',
-            'message' => "过去 {$this->windowHours} 小时内新增 {$this->count} 个队列失败任务，请排查（queue:failed / queue:retry）",
+            'message' => __('notifications.queue_failure.db_message', ['window_hours' => $this->windowHours, 'count' => $this->count]),
             'count' => $this->count,
             'url' => route('platform.tenants'),
         ];

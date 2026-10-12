@@ -34,7 +34,7 @@ class Convert extends Component
     public function mount(Lead $lead): void
     {
         if (in_array($lead->status, ['converted', 'lost'], true)) {
-            abort(403, '该线索已' . ($lead->status === 'converted' ? '转化' : '丢失') . '，无法再次转化');
+            abort(403, $lead->status === 'converted' ? __('leads.abort_converted') : __('leads.abort_lost'));
         }
 
         $this->lead = $lead;
@@ -91,7 +91,7 @@ class Convert extends Component
 
         // contacts 表 unique(tenant_id, email)：转化前拦截重复邮箱
         if ($this->email !== '' && Contact::where('email', $this->email)->exists()) {
-            $this->addError('email', '该邮箱已存在联系人，请修改后再转化。');
+            $this->addError('email', __('leads.email_exists'));
             return;
         }
 
@@ -137,7 +137,7 @@ class Convert extends Component
             return $contact;
         });
 
-        session()->flash('success', "线索「{$this->lead->name}」已转化为联系人 {$contact->full_name}");
+        session()->flash('success', __('leads.converted', ['lead' => $this->lead->name, 'contact' => $contact->full_name]));
         $this->redirect(route('contacts.show', $contact), navigate: true);
     }
 
@@ -146,6 +146,6 @@ class Convert extends Component
         return view('livewire.leads.convert', [
             'companies' => Company::orderBy('name')->get(),
             'stages' => Stage::ordered()->get(),
-        ])->layout('layouts.app', ['title' => '转化线索']);
+        ])->layout('layouts.app', ['title' => __('leads.convert_page_title')]);
     }
 }

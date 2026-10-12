@@ -1,22 +1,22 @@
 <div class="space-y-6">
     <div>
-        <h1 class="text-2xl font-bold text-gray-900">审计日志</h1>
-        <p class="text-sm text-gray-500 mt-1">记录公司/联系人/线索/商机的增删改操作</p>
+        <h1 class="text-2xl font-bold text-gray-900">{{ __('audit.title') }}</h1>
+        <p class="text-sm text-gray-500 mt-1">{{ __('audit.subtitle') }}</p>
     </div>
 
     <!-- 筛选栏 -->
     <div class="bg-white rounded-xl shadow-sm p-4 border border-gray-100">
         <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <input wire:model.live="search" type="text" placeholder="搜索用户名/IP/路由/批次号..."
+            <input wire:model.live="search" type="text" placeholder="{{ __('audit.search_placeholder') }}"
                    class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500">
             <select wire:model.live="action_filter" class="border border-gray-300 rounded-lg px-3 py-2 text-sm">
-                <option value="">全部操作</option>
+                <option value="">{{ __('audit.filter_all_actions') }}</option>
                 @foreach($actions as $k => $v)
                     <option value="{{ $k }}">{{ $v }}</option>
                 @endforeach
             </select>
             <select wire:model.live="model_filter" class="border border-gray-300 rounded-lg px-3 py-2 text-sm">
-                <option value="">全部模型</option>
+                <option value="">{{ __('audit.filter_all_models') }}</option>
                 @foreach($models as $k => $v)
                     <option value="{{ $k }}">{{ $v }}</option>
                 @endforeach
@@ -27,7 +27,7 @@
             </div>
             <button wire:click="exportCsv" wire:loading.attr="disabled"
                     class="ml-auto px-3 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-medium rounded-lg transition-colors whitespace-nowrap">
-                导出 CSV
+                {{ __('audit.export_csv') }}
             </button>
         </div>
     </div>
@@ -37,12 +37,12 @@
         <table class="w-full">
             <thead class="bg-gray-50">
                 <tr>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">时间</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">操作</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">对象</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">操作人</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">{{ __('audit.col_time') }}</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">{{ __('audit.col_action') }}</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">{{ __('audit.col_object') }}</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">{{ __('audit.col_operator') }}</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">IP</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">详情</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">{{ __('audit.col_detail') }}</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-gray-100">
@@ -64,23 +64,23 @@
                         <td class="px-6 py-3 whitespace-nowrap">
                             @if($isBatchSummary)
                                 <span class="px-2 py-0.5 text-xs rounded-full bg-purple-100 text-purple-700 font-medium">
-                                    批次汇总
+                                    {{ __('audit.batch_summary') }}
                                 </span>
                                 @if($log->action === 'batch_deleted')
-                                    <span class="px-2 py-0.5 text-xs rounded-full bg-red-100 text-red-700 ml-1">批量删除</span>
+                                    <span class="px-2 py-0.5 text-xs rounded-full bg-red-100 text-red-700 ml-1">{{ __('audit.action_batch_deleted') }}</span>
                                 @elseif($log->action === 'batch_updated')
-                                    <span class="px-2 py-0.5 text-xs rounded-full bg-blue-100 text-blue-700 ml-1">批量修改</span>
+                                    <span class="px-2 py-0.5 text-xs rounded-full bg-blue-100 text-blue-700 ml-1">{{ __('audit.action_batch_updated') }}</span>
                                 @else
                                     <span class="px-2 py-0.5 text-xs rounded-full bg-gray-100 text-gray-700 ml-1">{{ $log->action }}</span>
                                 @endif
                             @elseif($log->action === 'created')
-                                <span class="px-2 py-0.5 text-xs rounded-full bg-green-100 text-green-700">新增</span>
+                                <span class="px-2 py-0.5 text-xs rounded-full bg-green-100 text-green-700">{{ __('audit.action_created') }}</span>
                             @elseif($log->action === 'updated')
-                                <span class="px-2 py-0.5 text-xs rounded-full bg-blue-100 text-blue-700">修改</span>
+                                <span class="px-2 py-0.5 text-xs rounded-full bg-blue-100 text-blue-700">{{ __('audit.action_updated') }}</span>
                             @elseif($log->action === 'restored')
-                                <span class="px-2 py-0.5 text-xs rounded-full bg-teal-100 text-teal-700">恢复</span>
+                                <span class="px-2 py-0.5 text-xs rounded-full bg-teal-100 text-teal-700">{{ __('audit.action_restored') }}</span>
                             @else
-                                <span class="px-2 py-0.5 text-xs rounded-full bg-red-100 text-red-700">删除</span>
+                                <span class="px-2 py-0.5 text-xs rounded-full bg-red-100 text-red-700">{{ __('audit.action_deleted') }}</span>
                             @endif
                         </td>
                         <td class="px-6 py-3 whitespace-nowrap text-sm">
@@ -92,11 +92,11 @@
                             @if($log->auditable_id > 0)
                                 <span class="text-gray-900 font-medium">#{{ $log->auditable_id }}</span>
                             @else
-                                <span class="text-gray-400 text-xs">(批次级)</span>
+                                <span class="text-gray-400 text-xs">{{ __('audit.batch_level') }}</span>
                             @endif
                         </td>
                         <td class="px-6 py-3 whitespace-nowrap text-sm text-gray-700">
-                            {{ $log->user?->name ?? '系统' }}
+                            {{ $log->user?->name ?? __('misc.system') }}
                         </td>
                         <td class="px-6 py-3 whitespace-nowrap text-sm text-gray-500 font-mono">{{ $log->ip ?? '-' }}</td>
                         <td class="px-6 py-3 text-sm">
@@ -104,9 +104,9 @@
                             <div class="flex items-center gap-2">
                                 @if($isBatchSummary && $log->after)
                                     <span class="text-gray-700">
-                                        <span class="font-medium">{{ $log->after['count'] ?? 0 }}</span> 条
+                                        <span class="font-medium">{{ $log->after['count'] ?? 0 }}</span> {{ __('audit.count_suffix') }}
                                         @if(($log->after['status'] ?? '') === 'partial')
-                                            <span class="text-amber-600 text-xs ml-1">(部分成功)</span>
+                                            <span class="text-amber-600 text-xs ml-1">{{ __('audit.partial_success') }}</span>
                                         @endif
                                     </span>
                                 @elseif($log->action === 'created' && $log->after)
@@ -128,7 +128,7 @@
                                         @endif
                                     @endforeach
                                     @if($changedCount > 2)
-                                        <span class="text-xs text-gray-400">+{{ $changedCount - 2 }} 项变更</span>
+                                        <span class="text-xs text-gray-400">{{ __('audit.changed_more', ['count' => $changedCount - 2]) }}</span>
                                     @endif
                                 @elseif($log->action === 'deleted' && $log->before)
                                     @foreach(array_slice($log->before, 0, 2, true) as $k => $v)
@@ -139,8 +139,8 @@
                                 @if($hasDetail)
                                     <button x-on:click="open = !open"
                                             class="ml-1 text-indigo-500 hover:text-indigo-700 text-xs whitespace-nowrap">
-                                        <span x-show="!open">展开 ▼</span>
-                                        <span x-show="open" x-cloak>收起 ▲</span>
+                                        <span x-show="!open">{{ __('audit.expand') }}</span>
+                                        <span x-show="open" x-cloak>{{ __('audit.collapse') }}</span>
                                     </button>
                                 @endif
                             </div>
@@ -154,14 +154,14 @@
                                 <table class="w-full text-sm border border-gray-200 rounded-lg">
                                     <thead>
                                         <tr class="bg-gray-100">
-                                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase w-1/3">字段</th>
+                                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase w-1/3">{{ __('audit.col_field') }}</th>
                                             <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase w-1/3">
-                                                @if($log->action === 'created') 新值
-                                                @elseif($log->action === 'deleted') 旧值
-                                                @else 旧值
+                                                @if($log->action === 'created') {{ __('audit.col_new_value') }}
+                                                @elseif($log->action === 'deleted') {{ __('audit.col_old_value') }}
+                                                @else {{ __('audit.col_old_value') }}
                                                 @endif
                                             </th>
-                                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase w-1/3">新值</th>
+                                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase w-1/3">{{ __('audit.col_new_value') }}</th>
                                         </tr>
                                     </thead>
                                     <tbody class="divide-y divide-gray-100">
@@ -205,7 +205,7 @@
                     @endif
                 @empty
                     <tr>
-                        <td colspan="6" class="px-6 py-12 text-center text-gray-500 text-sm">暂无审计日志</td>
+                        <td colspan="6" class="px-6 py-12 text-center text-gray-500 text-sm">{{ __('audit.empty_logs') }}</td>
                     </tr>
                 @endforelse
             </tbody>

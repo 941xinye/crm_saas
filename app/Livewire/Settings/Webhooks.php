@@ -98,7 +98,7 @@ class Webhooks extends Component
                 'events' => $this->selectedEvents,
                 'is_active' => $this->isActive,
             ]);
-            session()->flash('success', "Webhook「{$webhook->name}」已更新");
+            session()->flash('success', __('settings_webhooks.saved_update', ['name' => $webhook->name]));
         } else {
             TenantWebhook::create([
                 'name' => $this->name,
@@ -107,7 +107,7 @@ class Webhooks extends Component
                 'is_active' => $this->isActive,
                 'secret' => 'whsec_' . bin2hex(random_bytes(24)),
             ]);
-            session()->flash('success', "Webhook「{$this->name}」已创建，Secret 仅在创建时可见，请及时保存");
+            session()->flash('success', __('settings_webhooks.saved_create', ['name' => $this->name]));
         }
 
         $this->resetForm();
@@ -120,7 +120,7 @@ class Webhooks extends Component
         }
         $webhook = TenantWebhook::query()->findOrFail($id);
         $webhook->delete();
-        session()->flash('success', "Webhook「{$webhook->name}」已删除");
+        session()->flash('success', __('settings_webhooks.saved_delete', ['name' => $webhook->name]));
     }
 
     public function toggleActive(int $id): void
@@ -143,7 +143,7 @@ class Webhooks extends Component
         $webhook = TenantWebhook::query()->findOrFail($id);
         $webhook->update(['secret' => 'whsec_' . bin2hex(random_bytes(24))]);
 
-        session()->flash('success', 'Secret 已重置');
+        session()->flash('success', __('settings_webhooks.secret_reset'));
         session()->flash('new_secret', $webhook->fresh()->secret);
     }
 
@@ -174,9 +174,9 @@ class Webhooks extends Component
         $ok = app(WebhookService::class)->send($webhook, 'webhook.test', $payload);
 
         if ($ok) {
-            session()->flash('success', "测试事件已成功推送到 {$webhook->url}");
+            session()->flash('success', __('settings_webhooks.test_sent', ['url' => $webhook->url]));
         } else {
-            session()->flash('error', '测试事件推送失败，请检查 URL 可达性与接收端日志');
+            session()->flash('error', __('settings_webhooks.test_failed'));
         }
     }
 
@@ -193,15 +193,25 @@ class Webhooks extends Component
         $this->resetErrorBag();
     }
 
+    /**
+     * 可订阅模型显示标签（翻译键约定：settings_webhooks.model_{prefix}）。
+     */
+    private function modelLabels(): array
+    {
+        return collect(self::MODELS)->mapWithKeys(
+            fn ($label, $prefix) => [$prefix => __("settings_webhooks.model_{$prefix}")]
+        )->all();
+    }
+
     public function render()
     {
         $webhooks = TenantWebhook::query()->orderByDesc('created_at')->get();
 
         return view('livewire.settings.webhooks', [
             'webhooks' => $webhooks,
-            'models' => self::MODELS,
+            'models' => $this->modelLabels(),
             'actions' => self::ACTIONS,
             'canManage' => $this->canManage(),
-        ])->layout('layouts.app', ['title' => 'Webhook 管理']);
+        ])->layout('layouts.app', ['title' => __('settings_webhooks.title')]);
     }
 }
