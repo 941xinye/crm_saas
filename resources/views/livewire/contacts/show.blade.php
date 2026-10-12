@@ -2,25 +2,25 @@
     <div class="flex items-center justify-between">
         <div>
             <nav class="text-sm text-gray-500 mb-1">
-                <a href="{{ route('contacts.index') }}" class="hover:text-indigo-600">联系人</a>
+                <a href="{{ route('contacts.index') }}" class="hover:text-indigo-600">{{ __('contacts.index_title') }}</a>
                 <span class="mx-2">/</span>
                 <span class="text-gray-700 font-medium">{{ $contact->full_name }}</span>
             </nav>
             <h1 class="text-2xl font-bold text-gray-900">{{ $contact->full_name }}</h1>
-            <p class="text-sm text-gray-500 mt-1">{{ $contact->position ?? '未填写职位' }} · {{ $contact->company?->name ?? '无公司' }}</p>
+            <p class="text-sm text-gray-500 mt-1">{{ $contact->position ?? __('contacts.position_not_set') }} · {{ $contact->company?->name ?? __('contacts.no_company') }}</p>
         </div>
         <div class="space-x-2">
-            <a href="{{ route('contacts.edit', $contact) }}" class="inline-flex items-center px-4 py-2 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 text-sm font-medium rounded-lg">编辑</a>
+            <a href="{{ route('contacts.edit', $contact) }}" class="inline-flex items-center px-4 py-2 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 text-sm font-medium rounded-lg">{{ __('contacts.edit') }}</a>
         </div>
     </div>
 
     <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-        <h3 class="text-sm font-semibold text-gray-900 uppercase tracking-wider mb-4">联系信息</h3>
+        <h3 class="text-sm font-semibold text-gray-900 uppercase tracking-wider mb-4">{{ __('contacts.section_contact_info') }}</h3>
         <dl class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
-            <div><dt class="text-sm text-gray-500">邮箱</dt><dd class="text-sm text-gray-900 font-medium">{{ $contact->email ?? '-' }}</dd></div>
-            <div><dt class="text-sm text-gray-500">电话</dt><dd class="text-sm text-gray-900 font-medium">{{ $contact->phone ?? '-' }}</dd></div>
-            <div><dt class="text-sm text-gray-500">职位</dt><dd class="text-sm text-gray-900 font-medium">{{ $contact->position ?? '-' }}</dd></div>
-            <div><dt class="text-sm text-gray-500">所属公司</dt><dd class="text-sm text-gray-900 font-medium">{{ $contact->company?->name ?? '-' }}</dd></div>
+            <div><dt class="text-sm text-gray-500">{{ __('contacts.field_email') }}</dt><dd class="text-sm text-gray-900 font-medium">{{ $contact->email ?? '-' }}</dd></div>
+            <div><dt class="text-sm text-gray-500">{{ __('contacts.field_phone') }}</dt><dd class="text-sm text-gray-900 font-medium">{{ $contact->phone ?? '-' }}</dd></div>
+            <div><dt class="text-sm text-gray-500">{{ __('contacts.field_position') }}</dt><dd class="text-sm text-gray-900 font-medium">{{ $contact->position ?? '-' }}</dd></div>
+            <div><dt class="text-sm text-gray-500">{{ __('contacts.field_company') }}</dt><dd class="text-sm text-gray-900 font-medium">{{ $contact->company?->name ?? '-' }}</dd></div>
         </dl>
     </div>
 
@@ -33,7 +33,7 @@
     <!-- 跟进时间线 -->
     <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
         <div class="px-6 py-4 border-b border-gray-100">
-            <h3 class="text-sm font-semibold text-gray-900 uppercase tracking-wider">跟进时间线</h3>
+            <h3 class="text-sm font-semibold text-gray-900 uppercase tracking-wider">{{ __('contacts.timeline') }}</h3>
         </div>
         @include('livewire.partials.activity-timeline')
     </div>
@@ -41,8 +41,11 @@
     <!-- 附件 -->
     <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
         <div class="px-6 py-4 border-b border-gray-100">
-            <h3 class="text-sm font-semibold text-gray-900 uppercase tracking-wider">附件</h3>
+            <h3 class="text-sm font-semibold text-gray-900 uppercase tracking-wider">{{ __('contacts.attachments') }}</h3>
         </div>
         @livewire('attachments.attachment-panel', ['attachableType' => \App\Models\Contact::class, 'attachableId' => $contact->id], key('contact-attachments-'.$contact->id))
     </div>
+
+    <!-- 重复项合并 -->
+    @livewire('contacts.merge', ['contact' => $contact], key('contact-merge-'.$contact->id))
 </div>
