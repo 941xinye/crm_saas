@@ -4,6 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ config('app.name') }} - @yield('title', __('common.default_title'))</title>
+    {{-- PWA：manifest + 主题色 + 图标（详见 docs/pwa.md） --}}
+    <link rel="manifest" href="/manifest.webmanifest">
+    <meta name="theme-color" content="#4f46e5">
+    <link rel="icon" href="/pwa/icon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="/pwa/icon.svg">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
@@ -450,6 +455,13 @@
 
 {{-- Sortable.js (Livewire 4 sortable 功能依赖) --}}
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
+
+{{-- PWA Service Worker 注册（详见 docs/pwa.md） --}}
+<script>
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => navigator.register('/sw.js').catch(() => {}));
+    }
+</script>
 
 @stack('scripts')
 
