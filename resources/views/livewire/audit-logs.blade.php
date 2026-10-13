@@ -5,31 +5,33 @@
     </div>
 
     <!-- 筛选栏 -->
-    <div class="bg-white rounded-xl shadow-sm p-4 border border-gray-100">
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+    <div class="bg-white rounded-xl shadow-sm p-4 border border-gray-100 flex items-center gap-4 flex-wrap">
+        <div class="relative max-w-md flex-1 min-w-[240px]">
             <input wire:model.live="search" type="text" placeholder="{{ __('audit.search_placeholder') }}"
-                   class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
-            <select wire:model.live="action_filter" class="border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
-                <option value="">{{ __('audit.filter_all_actions') }}</option>
-                @foreach($actions as $k => $v)
-                    <option value="{{ $k }}">{{ $v }}</option>
-                @endforeach
-            </select>
-            <select wire:model.live="model_filter" class="border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
-                <option value="">{{ __('audit.filter_all_models') }}</option>
-                @foreach($models as $k => $v)
-                    <option value="{{ $k }}">{{ $v }}</option>
-                @endforeach
-            </select>
-            <div class="flex gap-2">
-                <input wire:model.live="date_from" type="date" class="flex-1 border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
-                <input wire:model.live="date_to" type="date" class="flex-1 border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
-            </div>
-            <button wire:click="exportCsv" wire:loading.attr="disabled"
-                    class="ml-auto px-3 py-2.5 bg-white border border-gray-300 hover:bg-gray-50 text-gray-600 text-sm font-medium rounded-lg transition-colors whitespace-nowrap">
-                {{ __('audit.export_csv') }}
-            </button>
+                   class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors">
+            <svg class="absolute left-3 top-2.5 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
         </div>
+        <select wire:model.live="action_filter" class="px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+            <option value="">{{ __('audit.filter_all_actions') }}</option>
+            @foreach($actions as $k => $v)
+                <option value="{{ $k }}">{{ $v }}</option>
+            @endforeach
+        </select>
+        <select wire:model.live="model_filter" class="px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+            <option value="">{{ __('audit.filter_all_models') }}</option>
+            @foreach($models as $k => $v)
+                <option value="{{ $k }}">{{ $v }}</option>
+            @endforeach
+        </select>
+        <div class="flex items-center gap-2">
+            <input wire:model.live="date_from" type="date" class="px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+            <span class="text-gray-400 text-sm">–</span>
+            <input wire:model.live="date_to" type="date" class="px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+        </div>
+        <button wire:click="exportCsv" wire:loading.attr="disabled"
+                class="ml-auto inline-flex items-center px-3 py-2.5 bg-white border border-gray-300 hover:bg-gray-50 text-gray-600 text-sm font-medium rounded-lg transition-colors whitespace-nowrap">
+            {{ __('audit.export_csv') }}
+        </button>
     </div>
 
     <!-- 表格 -->
