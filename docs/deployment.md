@@ -85,7 +85,7 @@ server {
 
 ### 1. 调度器（cron，必需）
 
-四个定时任务全部经由 Laravel 调度器触发（[routes/console.php](../routes/console.php)）：
+五个定时任务全部经由 Laravel 调度器触发（[routes/console.php](../routes/console.php)）：
 
 ```cron
 * * * * * cd /var/www/crm && php artisan schedule:run >> /dev/null 2>&1
@@ -97,6 +97,7 @@ server {
 | `crm:run-workflows` | 每日 08:45 | 停滞商机工作流扫描 |
 | `crm:send-reminders` | 每日 09:00 | 五类业务提醒扫描 |
 | `crm:health-check` | 每小时 | 队列失败告警 + 过期导出清理 |
+| `crm:prune-audit-logs` | 每日 08:15 | 审计日志按保留策略清理 |
 
 ### 2. 队列 worker（Supervisor，生产必需）
 

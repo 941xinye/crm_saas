@@ -61,6 +61,12 @@ return [
     // 为空时完全禁用，走登录用户所属租户（本地开发/测试无需配置）
     'subdomain_root' => env('CRM_SUBDOMAIN_ROOT'),
 
+    // 队列化配置（P3）
+    'queue' => [
+        // Webhook 推送是否走队列：true 时需保证 QUEUE_CONNECTION 非 sync 并运行 queue:work
+        'webhooks' => env('CRM_WEBHOOK_QUEUE', false),
+    ],
+
     // 系统健康检查（crm:health-check，每小时调度，见 docs/deployment.md）
     'health' => [
         // 队列失败告警：冷却窗口内新增 failed_jobs 时站内信通知平台超管
@@ -331,16 +337,19 @@ stdout_logfile=/path/to/crm/storage/logs/queue-worker.log
 
 ## Cron（定时任务）
 
+所有定时任务统一经由 Laravel 调度器触发（[routes/console.php](../routes/console.php)），服务器只需一条 crontab（见 [deployment.md](deployment.md) 第五节）：
+
 ```bash
-# 每天凌晨 1 点发送提醒（Phase 1 ReminderService）
-0 1 * * * cd /path/to/crm && php artisan crm:send-reminders >> storage/logs/reminders.log 2>&1
-
-# 每天凌晨 2 点扫描停滞商机并触发 stalled 工作流（Phase 4）
-0 2 * * * cd /path/to/crm && php artisan crm:run-workflows --all >> storage/logs/workflows.log 2>&1
-
-# 每天凌晨 1:30 刷新全租户商机智能评分（Phase 4）
-30 1 * * * cd /path/to/crm && php artisan crm:refresh-scores --all >> storage/logs/scoring.log 2>&1
+* * * * * cd /path/to/crm && php artisan schedule:run >> /dev/null 2>&1
 ```
+
+| 调度时刻 | 任务 | 说明 |
+|----------|------|------|
+| 每日 08:30 | `crm:refresh-scores` | 商机评分批量刷新（Phase 4） |
+| 每日 08:45 | `crm:run-workflows` | 停滞商机工作流扫描（Phase 4） |
+| 每日 09:00 | `crm:send-reminders` | 五类业务提醒扫描（Phase 1） |
+| 每小时 | `crm:health-check` | 队列失败告警 + 过期导出清理（Phase 6） |
+| 每日 08:15 | `crm:prune-audit-logs` | 审计日志按保留策略清理（Phase 6） |
 
 手动触发（开发/测试）：
 ```bash

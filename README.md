@@ -95,7 +95,7 @@
 
 ### Phase 7 — 工程化与商业化闭环（上线前 P0/P1）
 
-- **GitHub Actions CI** — push/PR 自动跑全量测试（PHP 8.3 + sqlite :memory:），绿灯才可合并
+- **GitHub Actions CI** — push/PR 自动跑全量测试（PHP 8.4 + sqlite :memory:），绿灯才可合并
 - **错误监控 ErrorReporter** — 异常聚合签名 + 冷却去重后推送群机器人告警（`crm.error_alerts` 配置，详见 [docs/monitoring.md](docs/monitoring.md)）
 - **Stripe 发票同步 + 账单历史** — `invoice.paid/payment_failed` 幂等入 `tenant_invoices`，订阅页展示近 12 期账单与支付状态（详见 [docs/billing.md](docs/billing.md)）
 - **公共线索表单（web-to-lead）** — 租户生成 `/f/{uuid}` 公开表单，蜜罐防滥用 + 限流 + 套餐配额前置检查，游客提交直达线索池（详见 [docs/web-form.md](docs/web-form.md)）
