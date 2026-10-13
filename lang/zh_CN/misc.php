@@ -5,6 +5,7 @@ return [
     'welcome' => '欢迎',
     'platform_name' => '多租户 CRM 平台',
     'platform_tagline' => '智慧客户关系管理系统',
+    'offline_banner' => '网络连接已断开，当前处于离线模式，部分功能可能不可用',
     'dashboard_title' => '控制台',
     'global_search' => '全局搜索',
     'search_placeholder' => '搜索公司、联系人、线索、商机…',

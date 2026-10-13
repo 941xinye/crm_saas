@@ -5,6 +5,7 @@ return [
     'welcome' => 'Welcome',
     'platform_name' => 'Multi-Tenant CRM Platform',
     'platform_tagline' => 'Smart Customer Relationship Management',
+    'offline_banner' => 'You are offline. Some features may be unavailable.',
     'dashboard_title' => 'Dashboard',
     'global_search' => 'Global Search',
     'search_placeholder' => 'Search companies, contacts, leads, opportunities…',

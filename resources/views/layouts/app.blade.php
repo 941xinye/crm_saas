@@ -130,6 +130,22 @@
 </head>
 <body class="bg-gray-100 min-h-screen">
 
+{{-- 全局离线提示横幅（PWA 离线体验，Phase 10）：断网时置顶显示，恢复后自动隐藏 --}}
+<div id="offline-banner"
+     class="hidden fixed top-0 inset-x-0 z-[100] bg-amber-500 text-white text-sm text-center py-2 shadow-md">
+    {{ __('misc.offline_banner') }}
+</div>
+<script>
+    (function () {
+        var banner = document.getElementById('offline-banner');
+        if (!banner) return;
+        var sync = function () { banner.classList.toggle('hidden', navigator.onLine); };
+        window.addEventListener('online', sync);
+        window.addEventListener('offline', sync);
+        sync();
+    })();
+</script>
+
 <div class="flex h-screen overflow-hidden">
 
     <!-- 侧边栏 -->

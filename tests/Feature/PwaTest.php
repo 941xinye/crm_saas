@@ -65,4 +65,23 @@ class PwaTest extends TestCase
         $response->assertSee('<meta name="theme-color" content="#4f46e5">', false);
         $response->assertSee("navigator.register('/sw.js')", false);
     }
+
+    public function test_layout_contains_global_offline_banner(): void
+    {
+        $tenant = Tenant::create([
+            'name' => '离线横幅租户',
+            'slug' => 'ob-' . Str::lower(Str::random(8)),
+            'plan' => 'pro',
+            'is_active' => true,
+        ]);
+        $user = User::factory()->create(['tenant_id' => $tenant->id, 'role' => 'admin']);
+        $this->actingAs($user);
+        app(Tenancy::class)->forUser($user);
+
+        $response = $this->get(route('dashboard'));
+
+        $response->assertOk()
+            ->assertSee('offline-banner', false)
+            ->assertSee(__('misc.offline_banner'));
+    }
 }
