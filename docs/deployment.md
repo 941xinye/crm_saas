@@ -85,7 +85,7 @@ server {
 
 ### 1. 调度器（cron，必需）
 
-五个定时任务全部经由 Laravel 调度器触发（[routes/console.php](../routes/console.php)）：
+六个定时任务全部经由 Laravel 调度器触发（[routes/console.php](../routes/console.php)）：
 
 ```cron
 * * * * * cd /var/www/crm && php artisan schedule:run >> /dev/null 2>&1
@@ -97,7 +97,8 @@ server {
 | `crm:run-workflows` | 每日 08:45 | 停滞商机工作流扫描 |
 | `crm:send-reminders` | 每日 09:00 | 五类业务提醒扫描 |
 | `crm:health-check` | 每小时 | 队列失败告警 + 过期导出清理 |
-| `crm:prune-audit-logs` | 每日 08:15 | 审计日志按保留策略清理 |
+| `crm:archive-audit-logs` | 每日 08:05 | 审计日志归档为 gzip CSV 后删除源记录（Phase 10） |
+| `crm:prune-audit-logs` | 每日 08:15 | 审计日志按保留策略清理（归档残留兜底） |
 
 ### 2. 队列 worker（Supervisor，生产必需）
 
@@ -159,7 +160,8 @@ tar -xzf /backup/attachments_2026-10-12.tar.gz -C /var/www/crm/storage/app
 - [ ] `APP_ENV=production`、`APP_DEBUG=false`、`APP_URL` 正确
 - [ ] `php artisan migrate --force` 已执行
 - [ ] cron `schedule:run` 已配置且手动触发一次验证
-- [ ] Supervisor worker 常驻；`CRM_WEBHOOK_QUEUE=true` 时必须先验证
+- [ ] Supervisor worker 常驻；`CRM_WEBHOOK_QUEUE=true` 时必须先验证；CSV 大文件后台导入（`CRM_IMPORT_ASYNC_THRESHOLD>0`）同样依赖 worker
+- [ ] 生产 MySQL 下 FULLTEXT 搜索迁移已生效，`CRM_SEARCH_DRIVER=fulltext`（见 [search.md](search.md)）
 - [ ] HTTPS 证书生效（含泛域名，如启用子域名识别）
 - [ ] Stripe Webhook 端点已在后台注册（见 stripe.md）
 - [ ] 邮件发送已配置（邮箱验证依赖，未配置时注册用户无法过验证）

@@ -113,6 +113,17 @@
 - **OpenAPI 3.0 规范 + 交互式文档** — `php artisan api:generate-docs` 生成规范，`/api/docs` Swagger UI 在线调试、`/api/openapi.json` 供 SDK 导入（详见 [docs/api-reference.md](docs/api-reference.md)）
 - **性能基准与索引评估** — `crm:benchmark` 六类核心查询路径计时（--json 可脚本化），补充 5 组复合索引并输出查询→索引映射表（详见 [docs/performance.md](docs/performance.md)）
 
+### Phase 10 — 性能与体验 / 平台能力（P1/P2）
+
+- **Stripe 事件队列化** — webhook 回调同步入队后由 `ProcessStripeEvent` 消费，回调端零阻塞、失败自动重试（详见 [docs/stripe.md](docs/stripe.md)）
+- **CSV 大文件后台导入** — 超过阈值行数自动转 `ImportCsvJob` 队列处理，进度表实时展示已处理/成功/失败行数（详见 [docs/csv.md](docs/csv.md)）
+- **全局搜索 FULLTEXT 驱动** — MySQL FULLTEXT + ngram 分词（BOOLEAN MODE），非 mysql 连接自动回退 LIKE（详见 [docs/search.md](docs/search.md)）
+- **错误事件 DB 聚合 + 平台错误面板** — 异常按签名聚合计数落库，超管面板查看 TOP 错误与首次/最近发生时间（详见 [docs/monitoring.md](docs/monitoring.md)）
+- **审计日志归档** — `crm:archive-audit-logs` 先 gzip 导出再删除过期记录，每日 08:05 调度（详见 [docs/audit.md](docs/audit.md)）
+- **邮件模板品牌化** — vendor 邮件视图（页眉/页脚/署名/标题）统一使用租户白标或平台品牌名（详见 [docs/white-label.md](docs/white-label.md)）
+- **套餐多币种** — 计划级 `currency` 配置，平台收入看板 MRR 按币种分组展示（详见 [docs/platform-revenue.md](docs/platform-revenue.md)）
+- **PWA 离线提示** — 全局离线横幅（online/offline 事件实时切换），断网页面导航回退离线页（详见 [docs/pwa.md](docs/pwa.md)）
+
 ## 快速开始
 
 ```bash
@@ -272,12 +283,12 @@ config/
 - [部署手册（生产上线/备份/监控）](docs/deployment.md)
 - [套餐与配额体系](docs/plans.md)
 - [通知体系（提醒/渠道/偏好）](docs/notifications.md)
-- [全局搜索](docs/search.md)
+- [全局搜索](docs/search.md) — Phase 10
 - [自定义字段](docs/custom-fields.md) — Phase 6
 - [租户数据导出与删除（GDPR）](docs/gdpr.md)
 - [CSV 导入导出](docs/csv.md)
 - [数据报表](docs/reports.md)
-- [审计日志](docs/audit.md)
+- [审计日志](docs/audit.md) — Phase 10
 - [REST API 文档](docs/api.md) — Phase 3
 - [REST API 交互式文档（OpenAPI）](docs/api-reference.md) — Phase 9
 - [错误监控](docs/monitoring.md) — Phase 7

@@ -61,6 +61,20 @@ return [
     // 为空时完全禁用，走登录用户所属租户（本地开发/测试无需配置）
     'subdomain_root' => env('CRM_SUBDOMAIN_ROOT'),
 
+    // 全局搜索（Phase 10，见 docs/search.md）
+    'search' => [
+        // like：LIKE %keyword%（默认，兼容 sqlite/小数据量）
+        // fulltext：MySQL FULLTEXT + ngram 分词（需先跑迁移；非 mysql 连接自动回退 like）
+        'driver' => env('CRM_SEARCH_DRIVER', 'like'),
+    ],
+
+    // CSV 导入（Phase 10，见 docs/csv.md）
+    'import' => [
+        // 超过该行数的导入自动转后台队列处理（ImportCsvJob + csv_import_jobs 进度表）
+        // 0 表示全部同步处理
+        'async_threshold' => (int) env('CRM_IMPORT_ASYNC_THRESHOLD', 200),
+    ],
+
     // 队列化配置（P3）
     'queue' => [
         // Webhook 推送是否走队列：true 时需保证 QUEUE_CONNECTION 非 sync 并运行 queue:work
@@ -270,10 +284,14 @@ MAIL_ENCRYPTION=tls
 MAIL_FROM_ADDRESS=noreply@crm.yourdomain.com
 MAIL_FROM_NAME="${APP_NAME}"
 
-# ---- 队列（推荐，邮件/Webhook/Stripe 都依赖）----
+# ---- 队列（推荐，邮件/Webhook/Stripe/CSV 后台导入都依赖）----
 QUEUE_CONNECTION=database
 # Webhook 推送队列化开关（P3，默认 false 同步旁路；true 需保证 worker 运行）
 CRM_WEBHOOK_QUEUE=false
+# CSV 导入超过该行数转后台队列处理（0 = 全部同步）
+CRM_IMPORT_ASYNC_THRESHOLD=200
+# 全局搜索驱动：fulltext（MySQL，需先跑 FULLTEXT 迁移）/ like（默认）
+CRM_SEARCH_DRIVER=fulltext
 
 # ---- Sanctum ----
 SANCTUM_TOKEN_EXPIRATION=
@@ -328,7 +346,7 @@ stdout_logfile=/path/to/crm/storage/logs/queue-worker.log
 | Webhook 推送 | **可队列化**（`CRM_WEBHOOK_QUEUE=true`） | `App\Jobs\SendWebhookJob`，tries=3 + backoff 30s/120s 兜底意外异常；HTTP 层失败仍走 failure_count 记账 |
 | 邮件验证 / 提醒通知 | Laravel 通知默认同步 | 队列连接非 sync 时 Laravel 自动走 `ShouldQueue` 通知队列，无需额外开关 |
 | Stripe 事件 | **已队列化**（`App\Jobs\ProcessStripeEvent`） | 控制器仅验签 + 快速 200 回执，事件体入队由 worker 处理（tries=3 + backoff）；QUEUE_CONNECTION=sync（本地/测试）自动退化为同步执行。worker 未就绪前事件滞留 jobs 表，可 `queue:failed` 排查 |
-| CSV 导入 | **保持同步** | 前置配额检查 + 逐行错误回显需要即时返回用户；行数量级小（<10k），同步可接受。超大文件场景建议后续拆分 `ImportCsvJob` + 进度表 |
+| CSV 导入 | **超阈值自动队列化**（Phase 10） | 行数超过 `CRM_IMPORT_ASYNC_THRESHOLD`（默认 200）时转 `ImportCsvJob` 后台导入（`csv_import_jobs` 进度表 + 站内信 + 失败明细下载，tries=1 非幂等不重试）；阈值内保持同步即时回显，详见 [csv.md](csv.md) |
 | LLM 调用（评分/建议） | 同步 + 限流 | 评分通过 `crm:refresh-scores` 夜间批处理执行（已是"离线"模式）；AI 跟进建议为用户主动触发的低频操作，同步返回体验更好。已有限流 + prompt 截断 + 静默降级保护 |
 
 > 队列化原则：外部服务调用必须 graceful degradation——无配置或连接失败时静默旁路，不阻塞主业务；队列 worker 不可用时同步模式仍可正常工作（开关回退 `false` 即可）。
@@ -349,7 +367,8 @@ stdout_logfile=/path/to/crm/storage/logs/queue-worker.log
 | 每日 08:45 | `crm:run-workflows` | 停滞商机工作流扫描（Phase 4） |
 | 每日 09:00 | `crm:send-reminders` | 五类业务提醒扫描（Phase 1） |
 | 每小时 | `crm:health-check` | 队列失败告警 + 过期导出清理（Phase 6） |
-| 每日 08:15 | `crm:prune-audit-logs` | 审计日志按保留策略清理（Phase 6） |
+| 每日 08:05 | `crm:archive-audit-logs` | 审计日志归档为 gzip CSV 后删除源记录（Phase 10） |
+| 每日 08:15 | `crm:prune-audit-logs` | 审计日志按保留策略清理（归档残留兜底） |
 
 手动触发（开发/测试）：
 ```bash
