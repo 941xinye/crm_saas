@@ -38,6 +38,14 @@ return [
         'webhooks' => env('CRM_WEBHOOK_QUEUE', false),
     ],
 
+    // 全局搜索（P1，见 docs/search.md）
+    'search' => [
+        // like：LIKE %keyword%（默认，兼容 sqlite/小数据量）
+        // fulltext：MySQL FULLTEXT + ngram 分词（需先执行迁移添加 FULLTEXT 索引，
+        // 非 mysql 连接自动回退 like）
+        'driver' => env('CRM_SEARCH_DRIVER', 'like'),
+    ],
+
     // CSV 导入（P1，见 docs/csv.md）
     'import' => [
         // 超过该行数的导入自动转后台队列处理（ImportCsvJob + csv_import_jobs 进度表）

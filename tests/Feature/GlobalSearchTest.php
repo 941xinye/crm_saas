@@ -228,4 +228,32 @@ class GlobalSearchTest extends TestCase
             ->assertOk()
             ->assertSee('未找到');
     }
+
+    // ------------------------------------------------------------------
+    // 搜索驱动（P1）
+    // ------------------------------------------------------------------
+
+    public function test_fulltext_driver_falls_back_to_like_on_non_mysql(): void
+    {
+        // sqlite 测试库无 FULLTEXT 支持，配置 fulltext 时应自动回退 LIKE 且结果一致
+        config(['crm.search.driver' => 'fulltext']);
+        $tenant = $this->createTenant();
+        $user = $this->createUser($tenant);
+        $this->seedCompany($tenant, ['name' => '云图科技']);
+
+        $this->actingAs($user)
+            ->get(route('search', ['q' => '云图']))
+            ->assertOk()
+            ->assertSee('云图科技');
+    }
+
+    public function test_boolean_query_strips_operators(): void
+    {
+        $method = new \ReflectionMethod(\App\Livewire\GlobalSearch::class, 'toBooleanQuery');
+
+        // 布尔操作符（+ - > < * ~ "）全部剥离，防止 BOOLEAN MODE 语法错误
+        $this->assertSame('"acme" "corp2"', $method->invoke(new \App\Livewire\GlobalSearch, 'acme -corp*">2'));
+        // 纯操作符输入清洗后为空串
+        $this->assertSame('', $method->invoke(new \App\Livewire\GlobalSearch, '+ -*'));
+    }
 }
