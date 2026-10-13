@@ -327,7 +327,7 @@ stdout_logfile=/path/to/crm/storage/logs/queue-worker.log
 |------|------|------|
 | Webhook 推送 | **可队列化**（`CRM_WEBHOOK_QUEUE=true`） | `App\Jobs\SendWebhookJob`，tries=3 + backoff 30s/120s 兜底意外异常；HTTP 层失败仍走 failure_count 记账 |
 | 邮件验证 / 提醒通知 | Laravel 通知默认同步 | 队列连接非 sync 时 Laravel 自动走 `ShouldQueue` 通知队列，无需额外开关 |
-| Stripe 事件 | 同步（Controller 内） | 事件量低且依赖即时回执，保持同步；worker 就绪后可平滑迁移 |
+| Stripe 事件 | **已队列化**（`App\Jobs\ProcessStripeEvent`） | 控制器仅验签 + 快速 200 回执，事件体入队由 worker 处理（tries=3 + backoff）；QUEUE_CONNECTION=sync（本地/测试）自动退化为同步执行。worker 未就绪前事件滞留 jobs 表，可 `queue:failed` 排查 |
 | CSV 导入 | **保持同步** | 前置配额检查 + 逐行错误回显需要即时返回用户；行数量级小（<10k），同步可接受。超大文件场景建议后续拆分 `ImportCsvJob` + 进度表 |
 | LLM 调用（评分/建议） | 同步 + 限流 | 评分通过 `crm:refresh-scores` 夜间批处理执行（已是"离线"模式）；AI 跟进建议为用户主动触发的低频操作，同步返回体验更好。已有限流 + prompt 截断 + 静默降级保护 |
 
