@@ -118,4 +118,6 @@ Route::middleware(['auth', 'verified', 'platform.admin'])->prefix('platform')->n
     Route::get('/tenants', \App\Livewire\Platform\Tenants::class)->name('tenants');
     // 收入/流失看板（平台超管专用，见 docs/platform-revenue.md）
     Route::get('/revenue', \App\Livewire\Platform\Revenue::class)->name('revenue');
+    // 错误事件聚合面板（平台超管专用，见 docs/monitoring.md）
+    Route::get('/errors', \App\Livewire\Platform\Errors::class)->name('errors');
 });

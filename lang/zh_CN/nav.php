@@ -4,6 +4,7 @@
 return [
     'platform_tenants' => '租户管理',
     'platform_tenants_hint' => '管理所有租户、启停与套餐切换',
+    'platform_errors' => '错误监控',
     'dashboard' => '控制台',
     'dashboard_hint' => '业务概览：统计卡片、商机阶段分布与最近动态',
     'reports' => '数据报表',

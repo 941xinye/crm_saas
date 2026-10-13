@@ -4,6 +4,7 @@
 return [
     'platform_tenants' => 'Tenants',
     'platform_tenants_hint' => 'Manage all tenants, status and plan switching',
+    'platform_errors' => 'Error Monitor',
     'dashboard' => 'Dashboard',
     'dashboard_hint' => 'Business overview: stat cards, opportunity stages and recent activity',
     'reports' => 'Reports',

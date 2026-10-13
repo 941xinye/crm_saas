@@ -6,7 +6,7 @@
 
 | 层 | 手段 | 告警目的地 |
 |----|------|-----------|
-| 应用异常（5xx） | `ErrorReporter` 自动推送 | 群机器人（钉钉/企业微信/Slack） |
+| 应用异常（5xx） | `ErrorReporter` 自动推送 + DB 聚合 | 群机器人 + `/platform/errors` 面板 |
 | 队列失败 | `crm:health-check`（每小时） | 站内信（平台超管） |
 | 队列积压 | `php artisan queue:failed` 人工排查 | — |
 | 进程存活 | Supervisor / systemctl | — |
@@ -23,6 +23,15 @@
 - **冷却去重**：同一错误签名（异常类 + 文件 + 行）在冷却期内只推送一次，默认 600 秒，防止异常风暴刷屏
 - **旁路化**：告警推送失败仅记日志，绝不影响主请求流程
 - **复用机器人配置**：使用与提醒/工作流通知相同的 `CRM_ROBOT_WEBHOOK_URL` / `CRM_ROBOT_TYPE`
+
+### DB 聚合与错误面板（Phase 10）
+
+除机器人推送外，每次 5xx 异常还会按签名**聚合写入 `error_events` 表**（Phase 10）：
+
+- **聚合规则**：同一签名只保留一行，`count` 每次发生 +1，`message` 刷为最新一次，`first_seen_at` / `last_seen_at` 记录首末时间；首次上报时记录来源租户与上下文
+- **相互独立**：DB 聚合与机器人推送互不依赖——未配置 webhook 时聚合照常落库；聚合写库失败不影响推送（各自由 try-catch 旁路化）；聚合不受冷却期限制（每次都计数），推送仍受冷却限制
+- **平台面板**：`/platform/errors`（[app/Livewire/Platform/Errors.php](../app/Livewire/Platform/Errors.php)，仅平台超管可见）展示签名数 / 累计发生次数 / 近 24 小时活跃数，以及按最近出现排序的聚合明细（异常类型、信息、位置、来源租户、次数、首末时间）
+- 表结构见迁移 `2026_10_13_000012_create_error_events_table.php`；该表为平台级表，不做租户隔离（`tenant_id` 仅作来源标注）
 
 ### 配置
 
@@ -52,7 +61,7 @@ php artisan sentry:publish --dsn=你的DSN   # 自动写入 .env 与 exception h
 
 ## 四、告警响应流程建议
 
-1. 收到异常告警 → 确认频率与影响面（同签名冷却期内不会重复轰炸，多次告警即多个不同错误）
+1. 收到异常告警 → 打开 `/platform/errors` 面板确认签名、次数与首末时间，评估影响面（`count` 高或近 24h 活跃即为高优）
 2. `tail -f storage/logs/laravel.log` 查完整堆栈（工作流/LLM/Webhook 降级异常也在此）
 3. 涉及队列时 `php artisan queue:failed` 检查积压，修复后 `queue:retry all`
 4. 处理完成后确认告警停止；如属已知低危问题，可临时 `CRM_ERROR_ALERTS=false` 止损后修复
