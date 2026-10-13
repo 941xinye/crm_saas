@@ -14,6 +14,7 @@ return [
     'churn_count' => '流失租户',
     'total_tenants' => '租户总数',
     'plan_price_hint' => '套餐月价',
+    'tenants_unit' => '户',
 
     'revenue_12m' => '近 12 个月发票收入',
     'revenue_hint' => '按已支付发票（paid）按月汇总，金额由最小货币单位换算；仅统计近 12 个月。',

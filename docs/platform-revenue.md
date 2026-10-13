@@ -21,7 +21,13 @@
 
 ## 套餐价格配置
 
-MRR 与 ARPU 依赖 [config/plans.php](../config/plans.php) 中每个套餐的 `monthly_price`（单位：元，CNY 口径）。修改后需 `php artisan config:clear`。
+MRR 与 ARPU 依赖 [config/plans.php](../config/plans.php) 中每个套餐的 `monthly_price`（单位：元）与 `currency`（计价币种，ISO 4217）。修改后需 `php artisan config:clear`。
+
+### 多币种 MRR（Phase 10）
+
+- 各套餐通过 `currency` 字段声明计价币种（当前默认均为 `CNY`，可按需改为 `USD` 等）
+- 组件按币种分组计算 MRR（`mrrByCurrency`：每币种的 mrr / 户数 / ARPU），**流失租户不计入任何分组**
+- **单币种**时视图保持「¥ 总 MRR」展示不变；**多币种**时 MRR 卡片下方按币种分行展示（合计跨币种无意义，不再单列总 ARPU 口径之外的混算）
 
 ## 界面构成
 
@@ -32,4 +38,4 @@ MRR 与 ARPU 依赖 [config/plans.php](../config/plans.php) 中每个套餐的 `
 
 ## 测试
 
-`tests/Feature/PlatformRevenueTest.php`（9 个用例）：访问控制（平台超管可见、租户用户 403）、MRR/ARPU 汇总、canceled 与到期两类流失判定及 MRR 排除、试用计数、免费租户不流失、发票按月/币种汇总、12 个月窗口过滤。
+`tests/Feature/PlatformRevenueTest.php`（11 个用例）：访问控制（平台超管可见、租户用户 403）、MRR/ARPU 汇总、canceled 与到期两类流失判定及 MRR 排除、试用计数、免费租户不流失、发票按月/币种汇总、12 个月窗口过滤、**MRR 按套餐币种分组与流失排除**。

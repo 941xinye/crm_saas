@@ -14,6 +14,7 @@ return [
     'churn_count' => 'Churned Tenants',
     'total_tenants' => 'Total Tenants',
     'plan_price_hint' => 'Plan prices',
+    'tenants_unit' => 'tenants',
 
     'revenue_12m' => 'Invoice Revenue (Last 12 Months)',
     'revenue_hint' => 'Monthly totals of paid invoices, converted from the smallest currency unit. Last 12 months only.',

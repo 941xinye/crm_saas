@@ -7,13 +7,15 @@ return [
     | 套餐定义
     |--------------------------------------------------------------------------
     | max_users：租户成员上限；quotas：各资源条数上限。
+    | currency：该套餐计价币种（ISO 4217，平台收入看板 MRR 按币种分组）。
     | -1 表示不限制。修改后需执行 php artisan config:clear。
     */
 
     'free' => [
         'name' => '免费版',
-        // 月度价格（CNY），平台收入看板 MRR 计算（platform/revenue）
+        // 月度价格，平台收入看板 MRR 计算（platform/revenue）
         'monthly_price' => 0,
+        'currency' => 'CNY',
         'max_users' => 3,
         'trial_days' => 14,
         'quotas' => [
@@ -39,6 +41,7 @@ return [
     'pro' => [
         'name' => '专业版',
         'monthly_price' => 199,
+        'currency' => 'CNY',
         'max_users' => 20,
         'quotas' => [
             'companies' => 2000,
@@ -68,6 +71,7 @@ return [
     'enterprise' => [
         'name' => '企业版',
         'monthly_price' => 999,
+        'currency' => 'CNY',
         'max_users' => -1,
         'quotas' => [
             'companies' => -1,

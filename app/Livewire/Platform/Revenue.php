@@ -32,6 +32,18 @@ class Revenue extends Component
         $activePaid = $paid->reject(fn (Tenant $t) => $churned->contains($t));
         $mrr = $activePaid->sum(fn (Tenant $t) => (int) config("plans.{$t->plan}.monthly_price", 0));
 
+        // MRR 按套餐计价币种分组（Phase 10 多币种）：单币种时视图保持总 ¥ 展示不变
+        $mrrByCurrency = [];
+        foreach ($activePaid->groupBy(fn (Tenant $t) => config("plans.{$t->plan}.currency", 'CNY')) as $currency => $group) {
+            $sum = $group->sum(fn (Tenant $t) => (int) config("plans.{$t->plan}.monthly_price", 0));
+            $mrrByCurrency[strtoupper((string) $currency)] = [
+                'mrr' => $sum,
+                'count' => $group->count(),
+                'arpu' => $group->isNotEmpty() ? round($sum / $group->count(), 2) : 0,
+            ];
+        }
+        ksort($mrrByCurrency);
+
         $trialing = $tenants->filter(fn (Tenant $t) => $t->trial_ends_at !== null && $t->trial_ends_at->isFuture());
 
         // 历史累计流失率 = 流失 / (在营付费 + 流失)
@@ -71,6 +83,7 @@ class Revenue extends Component
         return view('livewire.platform.revenue', [
             'mrr' => $mrr,
             'arpu' => $activePaid->isNotEmpty() ? round($mrr / $activePaid->count(), 2) : 0,
+            'mrrByCurrency' => $mrrByCurrency,
             'activePaidCount' => $activePaid->count(),
             'freeCount' => $tenants->where('plan', 'free')->count(),
             'trialCount' => $trialing->count(),

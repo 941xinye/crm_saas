@@ -14,6 +14,17 @@
             <p class="text-sm text-gray-500">{{ __('platform_revenue.mrr') }}</p>
             <p class="text-3xl font-bold text-gray-900 mt-1">¥{{ number_format($mrr, 2) }}</p>
             <p class="text-xs text-gray-400 mt-2">{{ __('platform_revenue.arpu') }}：¥{{ number_format($arpu, 2) }}</p>
+            @if(count($mrrByCurrency) > 1)
+                {{-- 多币种：MRR 合计跨币种无意义，按币种分行展示 --}}
+                <div class="mt-3 space-y-1 border-t border-gray-100 pt-3">
+                    @foreach($mrrByCurrency as $currency => $group)
+                        <div class="flex items-center justify-between text-xs">
+                            <span class="font-medium text-gray-600">{{ $currency }}</span>
+                            <span class="text-gray-500">{{ number_format($group['mrr'], 2) }} · {{ $group['count'] }} {{ __('platform_revenue.tenants_unit') }}</span>
+                        </div>
+                    @endforeach
+                </div>
+            @endif
         </div>
         <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
             <p class="text-sm text-gray-500">{{ __('platform_revenue.active_paid') }}</p>

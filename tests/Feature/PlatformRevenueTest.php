@@ -103,6 +103,39 @@ class PlatformRevenueTest extends TestCase
     }
 
     // ------------------------------------------------------------------
+    // 多币种 MRR（Phase 10）
+    // ------------------------------------------------------------------
+
+    public function test_mrr_is_grouped_by_plan_currency(): void
+    {
+        // 覆盖套餐计价币种：pro 走 USD、enterprise 走 CNY
+        config(['plans.pro.currency' => 'USD', 'plans.enterprise.currency' => 'CNY']);
+        $this->createTenant(['plan' => 'pro']);
+        $this->createTenant(['plan' => 'pro']);
+        $this->createTenant(['plan' => 'enterprise']);
+
+        $groups = Livewire::test(Revenue::class)->viewData('mrrByCurrency');
+
+        $this->assertSame(398, $groups['USD']['mrr']);
+        $this->assertSame(2, $groups['USD']['count']);
+        $this->assertSame(199.0, $groups['USD']['arpu']);
+        $this->assertSame(999, $groups['CNY']['mrr']);
+        $this->assertSame(1, $groups['CNY']['count']);
+    }
+
+    public function test_churned_tenants_excluded_from_mrr_groups(): void
+    {
+        config(['plans.pro.currency' => 'USD']);
+        $this->createTenant(['plan' => 'pro', 'stripe_status' => 'canceled']);
+        $this->createTenant(['plan' => 'pro']);
+
+        $groups = Livewire::test(Revenue::class)->viewData('mrrByCurrency');
+
+        $this->assertSame(1, $groups['USD']['count']);
+        $this->assertSame(199, $groups['USD']['mrr']);
+    }
+
+    // ------------------------------------------------------------------
     // 流失判定与流失率
     // ------------------------------------------------------------------
 
