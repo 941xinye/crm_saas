@@ -101,4 +101,75 @@ class AuditExportPruneTest extends TestCase
         $this->artisan('crm:prune-audit-logs', ['--days' => 365]);
         $this->assertSame(1, AuditLog::count(), '只应删除过期日志');
     }
+
+    // ------------------------------------------------------------------
+    // 归档（Phase 10）
+    // ------------------------------------------------------------------
+
+    /** 直写一条过期审计日志（绕过 created_at 自动填充） */
+    private function createExpiredLog(array $attributes = []): AuditLog
+    {
+        $log = AuditLog::create(array_merge([
+            'tenant_id' => $this->tenant->id,
+            'user_id' => $this->user->id,
+            'action' => 'created',
+            'auditable_type' => Company::class,
+            'auditable_id' => 999,
+            'before' => ['name' => '旧名'],
+            'after' => ['name' => '新名'],
+        ], $attributes));
+        \Illuminate\Support\Facades\DB::table('audit_logs')
+            ->where('id', $log->id)
+            ->update(['created_at' => now()->subDays(400)]);
+
+        return $log->refresh();
+    }
+
+    public function test_archive_command_exports_gzip_and_deletes_expired(): void
+    {
+        $expired = $this->createExpiredLog();
+        // 新日志不受影响
+        Company::factory()->for($this->tenant, 'tenant')->create();
+        $this->assertSame(2, AuditLog::count());
+
+        $this->artisan('crm:archive-audit-logs', ['--days' => 365]);
+
+        // 源记录已删除（仅剩新日志）
+        $this->assertSame(1, AuditLog::count());
+        $this->assertNull(AuditLog::find($expired->id));
+
+        // gzip 归档文件存在且内容完整（zlib 流包装器可直接读）
+        $path = storage_path('app/audit-archive/audit-logs-'.now()->format('Y-m-d').'.csv.gz');
+        $this->assertFileExists($path);
+
+        $content = file_get_contents('compress.zlib://'.$path);
+        $rows = explode("\n", trim($content));
+        $this->assertStringContainsString('tenant_id', $rows[0], '首行应为表头');
+        $this->assertStringContainsString((string) $expired->id, $rows[1]);
+        $this->assertStringContainsString('created', $rows[1]);
+
+        // 测试后清理归档目录，不污染其他用例/本地环境
+        unlink($path);
+        @rmdir(storage_path('app/audit-archive'));
+    }
+
+    public function test_archive_dry_run_exports_nothing_and_deletes_nothing(): void
+    {
+        $this->createExpiredLog();
+
+        $this->artisan('crm:archive-audit-logs', ['--days' => 365, '--dry-run' => true]);
+
+        $this->assertSame(1, AuditLog::count(), 'dry-run 不应删除');
+        $this->assertFileDoesNotExist(storage_path('app/audit-archive/audit-logs-'.now()->format('Y-m-d').'.csv.gz'));
+    }
+
+    public function test_archive_skips_when_no_expired_logs(): void
+    {
+        Company::factory()->for($this->tenant, 'tenant')->create();
+
+        $this->artisan('crm:archive-audit-logs', ['--days' => 365]);
+
+        $this->assertSame(1, AuditLog::count());
+        $this->assertFileDoesNotExist(storage_path('app/audit-archive/audit-logs-'.now()->format('Y-m-d').'.csv.gz'));
+    }
 }

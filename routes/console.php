@@ -1,5 +1,6 @@
 <?php
 
+use App\Console\Commands\ArchiveAuditLogsCommand;
 use App\Console\Commands\HealthCheckCommand;
 use App\Console\Commands\PruneAuditLogsCommand;
 use App\Console\Commands\RefreshOpportunityScores;
@@ -25,5 +26,8 @@ Schedule::command(RunWorkflowsCommand::class)->dailyAt('08:45');
 // 系统健康检查：每小时一次（队列失败告警 + 过期租户导出 ZIP 清理）
 Schedule::command(HealthCheckCommand::class)->hourly();
 
-// 审计日志按保留策略清理：每天 08:15（README Phase 6 承诺的定时清理）
+// 审计日志归档：每天 08:05（先导出 gzip CSV 再删除源记录，早于 08:15 的兜底清理）
+Schedule::command(ArchiveAuditLogsCommand::class)->dailyAt('08:05');
+
+// 审计日志按保留策略清理：每天 08:15（README Phase 6 承诺的定时清理，归档残留兜底）
 Schedule::command(PruneAuditLogsCommand::class)->dailyAt('08:15');

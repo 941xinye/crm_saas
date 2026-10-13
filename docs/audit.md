@@ -289,6 +289,23 @@ AuditLog::selectRaw('batch_id, COUNT(*) as cnt, action')
 - 列：ID / 时间 / 操作者 / 动作（原始 action）/ 对象类型 / 对象 ID / Batch ID / IP / Route / 变更前 / 变更后
 - UTF-8 BOM 兼容 Excel；diff JSON 压成单行避免破坏行结构；`chunkById(500)` 分块，大数据量安全
 
+### 归档（Phase 10）
+
+归档命令将过期审计日志**先导出为 gzip CSV 再删除源记录**，实现 [app/Console/Commands/ArchiveAuditLogsCommand.php](../app/Console/Commands/ArchiveAuditLogsCommand.php)：
+
+```bash
+# 归档（默认读 config crm.audit.retention_days，导出成功后删除源记录）
+php artisan crm:archive-audit-logs
+
+# 显式天数 + 预览模式
+php artisan crm:archive-audit-logs --days=180 --dry-run
+```
+
+- **归档文件**：`storage/app/audit-archive/audit-logs-YYYY-MM-DD.csv.gz`（zlib 流包装器分批写入，内存占用与批次大小相关而非总量），含全字段（id/tenant_id/user_id/action/auditable_*/batch_id/before/after/ip/user_agent/route/created_at）
+- **顺序保证**：导出成功后才分批删除；删除失败时残留交给 `crm:prune-audit-logs` 兜底
+- **调度**：`crm:archive-audit-logs` 每天 08:05，`crm:prune-audit-logs` 每天 08:15 兜底清理未归档残留（见 [deployment.md](deployment.md) 调度表）
+- **租户口径**：与 prune 一致，Console 逃生舱下全租户执行（TenantScope 无上下文时不过滤）；归档文件为平台级数据，包含全部租户日志，需妥善管控 `storage/app/audit-archive` 目录权限
+
 ### 保留策略清理
 
 ```bash
