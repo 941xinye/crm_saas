@@ -224,6 +224,49 @@ class WhiteLabelTest extends TestCase
         $this->assertSame('zh-CN', $tenant->settings['language']);
     }
 
+    // ------------------------------------------------------------------
+    // 邮件模板品牌化（Phase 10）
+    // ------------------------------------------------------------------
+
+    public function test_activate_switches_global_from_branding_and_reset_restores(): void
+    {
+        $platformName = config('mail.from.name');
+        $platformAddress = config('mail.from.address');
+
+        $tenant = $this->createTenant();
+        $tenant->settings = array_merge($tenant->settings ?? [], $this->whitelabelSettings());
+        $tenant->save();
+
+        app(TenantMailer::class)->activate($tenant);
+        $this->assertSame('Acme CRM', config('mail.from.name'));
+        $this->assertSame('crm@example.com', config('mail.from.address'));
+
+        app(TenantMailer::class)->activate(null);
+        $this->assertSame($platformName, config('mail.from.name'), '复位后应恢复平台品牌名');
+        $this->assertSame($platformAddress, config('mail.from.address'));
+    }
+
+    public function test_mail_template_renders_tenant_brand_header_and_footer(): void
+    {
+        $platformName = config('app.name');
+
+        $tenant = $this->createTenant();
+        $tenant->settings = array_merge($tenant->settings ?? [], $this->whitelabelSettings());
+        $tenant->save();
+
+        // 未激活时邮件模板显示平台品牌
+        $plain = (new \Illuminate\Notifications\Messages\MailMessage)->line('正文')->render();
+        $this->assertStringContainsString($platformName, $plain);
+
+        // 白标激活后显示租户品牌
+        app(TenantMailer::class)->activate($tenant);
+        $branded = (new \Illuminate\Notifications\Messages\MailMessage)->line('正文')->render();
+        $this->assertStringContainsString('Acme CRM', $branded);
+        $this->assertStringNotContainsString($platformName, $branded);
+
+        app(TenantMailer::class)->activate(null);
+    }
+
     public function test_send_test_mail_success_flashes_message(): void
     {
         $tenant = $this->createTenant(['settings' => $this->whitelabelSettings()]);

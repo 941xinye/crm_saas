@@ -32,7 +32,7 @@
 
 核心服务 [TenantMailer](../app/Services/TenantMailer.php)：
 
-- `activate(?Tenant $tenant)`：租户已配置时，运行时注册名为 `tenant_whitelabel` 的 mailer（含解密后的密码与白标 From）并切换 `mail.default`；未配置时**复位平台默认**——长驻 worker（queue / Octane）处理完租户 A 后再处理租户 B，B 不会沿用 A 的 SMTP 配置
+- `activate(?Tenant $tenant)`：租户已配置时，运行时注册名为 `tenant_whitelabel` 的 mailer（含解密后的密码与白标 From）并切换 `mail.default`，同时**切换全局 `mail.from.name` / `mail.from.address`**（驱动邮件模板品牌，见下文）；未配置时**复位平台默认**——长驻 worker（queue / Octane）处理完租户 A 后再处理租户 B，B 不会沿用 A 的 SMTP 配置
 - `sendTestMail(Tenant $tenant, string $toEmail)`：以租户身份发送测试邮件，发送后立即复位
 - 密码解密失败（如 APP_KEY 轮换）视为未配置密码，静默降级而不中断发送
 
@@ -42,6 +42,14 @@
 | --- | --- | --- |
 | Web / API 请求 | [BootstrapTenancy](../app/Http/Middleware/BootstrapTenancy.php) 中间件 | 租户上下文建立后激活；未配置租户每次请求复位 |
 | 控制台提醒命令 | [ReminderService](../app/Services/ReminderService.php) | 每条 `notify()` 前按收件人所属租户激活；试用到期通知中平台超管走平台默认 |
+
+## 邮件模板品牌化（Phase 10）
+
+系统邮件（markdown 通知）的**页眉品牌名、默认署名、页脚版权、HTML `<title>`** 全部跟随租户品牌：
+
+- 覆盖视图：[resources/views/vendor/mail/html/message.blade.php](../resources/views/vendor/mail/html/message.blade.php)（页眉/页脚）、[resources/views/vendor/mail/html/layout.blade.php](../resources/views/vendor/mail/html/layout.blade.php)（title）、[resources/views/vendor/notifications/email.blade.php](../resources/views/vendor/notifications/email.blade.php)（默认署名）
+- 品牌名取值统一为 `config('mail.from.name') ?: config('app.name')`：白标激活时 TenantMailer 将 `mail.from.name` 切为租户品牌（`from_name` 或租户名），复位时从进程内快照恢复平台值，保证不泄漏
+- 仅品牌文本与框架原版有差异，其余主题样式、按钮、布局结构保持 Laravel 默认
 
 ## 与通知渠道的关系
 
@@ -55,4 +63,4 @@
 
 ## 测试
 
-`tests/Feature/WhiteLabelTest.php`（14 个用例）：激活/复位与 worker 隔离、密码加解密、留空保留密码、校验、非管理员拦截、停用只移除 whitelabel 键、测试邮件成功/失败/未配置路径、Web 请求级激活与复位。
+`tests/Feature/WhiteLabelTest.php`（16 个用例）：激活/复位与 worker 隔离、密码加解密、留空保留密码、校验、非管理员拦截、停用只移除 whitelabel 键、测试邮件成功/失败/未配置路径、Web 请求级激活与复位、**全局 mail.from 品牌切换与恢复、邮件模板租户品牌渲染**。

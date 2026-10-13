@@ -24,6 +24,9 @@ class TenantMailer
     /** 平台默认 mailer 名：进程内首次激活时快照，之后始终复位到该值 */
     private static ?string $platformDefault = null;
 
+    /** 平台默认 mail.from（品牌名/发件地址）：首次激活时快照，复位时恢复 */
+    private static ?array $platformFrom = null;
+
     /**
      * 租户是否已配置白标 SMTP（host 与 from_address 为最低要求）。
      */
@@ -49,9 +52,15 @@ class TenantMailer
         }
 
         self::$platformDefault ??= (string) config('mail.default');
+        self::$platformFrom ??= [
+            'address' => config('mail.from.address'),
+            'name' => config('mail.from.name'),
+        ];
 
         /** @var array<string, mixed> $wl */
         $wl = $tenant->settings['whitelabel'];
+
+        $fromName = $wl['from_name'] ?? $tenant->name;
 
         config()->set('mail.mailers.' . self::MAILER, [
             'transport' => 'smtp',
@@ -65,10 +74,15 @@ class TenantMailer
             // 白标发件人：覆盖平台全局 mail.from
             'from' => [
                 'address' => $wl['from_address'],
-                'name' => $wl['from_name'] ?? $tenant->name,
+                'name' => $fromName,
             ],
         ]);
         config()->set('mail.default', self::MAILER);
+
+        // 同步切换全局 mail.from：邮件模板品牌（resources/views/vendor/mail）读该值，
+        // 白标租户的系统邮件页眉/页脚显示租户品牌而非平台名
+        config()->set('mail.from.address', $wl['from_address']);
+        config()->set('mail.from.name', $fromName);
     }
 
     /**
@@ -92,6 +106,12 @@ class TenantMailer
     {
         if (self::$platformDefault !== null) {
             config()->set('mail.default', self::$platformDefault);
+        }
+
+        // 恢复平台品牌配置，避免租户品牌泄漏到下一个租户/平台邮件
+        if (self::$platformFrom !== null) {
+            config()->set('mail.from.address', self::$platformFrom['address']);
+            config()->set('mail.from.name', self::$platformFrom['name']);
         }
 
         config()->set('mail.mailers.' . self::MAILER, null);
