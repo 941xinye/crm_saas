@@ -3,6 +3,7 @@
 namespace App\Livewire\Opportunities;
 
 use App\Livewire\Concerns\WithAdvancedFiltering;
+use App\Livewire\Concerns\WithCsvAsyncImport;
 use App\Livewire\Concerns\WithDataPermissions;
 use App\Models\Opportunity;
 use App\Services\AuditService;
@@ -14,7 +15,7 @@ use Livewire\WithPagination;
 
 class Index extends Component
 {
-    use WithPagination, WithFileUploads, WithAdvancedFiltering, WithDataPermissions;
+    use WithPagination, WithFileUploads, WithAdvancedFiltering, WithDataPermissions, WithCsvAsyncImport;
 
     protected array $sortableColumns = ['title', 'value', 'expected_close_date', 'created_at', 'updated_at', 'score'];
 
@@ -192,6 +193,11 @@ class Index extends Component
     public function import(): void
     {
         $this->validate(['importFile' => ['required', 'file', 'mimes:csv,txt', 'max:10240']]);
+
+        // 超过阈值的文件转后台队列导入（见 docs/csv.md）
+        if ($this->queueLargeImport(Opportunity::class)) {
+            return;
+        }
 
         try {
             $result = app(CsvService::class)->import(

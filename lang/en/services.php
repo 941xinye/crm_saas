@@ -32,6 +32,9 @@ return [
     // CsvService: import/export messages
     'csv_trial_ended' => 'Your trial has ended. Data import is unavailable.',
     'csv_quota_insufficient' => 'Insufficient quota: currently :usage record(s), quota :quota. Importing :count record(s) would exceed it.',
+    'csv_import_aborted' => 'Import aborted: :reason',
+    'csv_error_row' => 'Row',
+    'csv_error_message' => 'Error Message',
     'csv_empty_file' => 'The file is empty or has no header row',
     'csv_missing_columns' => 'CSV is missing required columns: :columns',
     'csv_list_separator' => ', ',

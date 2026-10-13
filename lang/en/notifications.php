@@ -4,6 +4,12 @@
 return [
     'greeting' => 'Hello!',
 
+    'csv_import' => [
+        'done' => '":resource" import finished: :created record(s) created.',
+        'done_with_errors' => '":resource" import finished: :created record(s) created, :failed failed. Download the error report for details.',
+        'failed' => '":resource" background import failed. Please check the file or contact your administrator.',
+    ],
+
     'robot_title' => 'CRM Notification',
     'view_details' => 'View details: :url',
 

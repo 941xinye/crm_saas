@@ -77,7 +77,23 @@ CSV 中写名称而非 ID，导入时自动解析为租户内记录：
 
 ---
 
-## 五、模板示例
+## 五、大文件后台导入（Phase 10）
+
+行数超过阈值时，导入自动转为**后台队列执行**，避免大文件上传请求超时：
+
+- **阈值**：`config('crm.import.async_threshold')`（env `CRM_IMPORT_ASYNC_THRESHOLD`，默认 200 行），设为 `0` 表示全部同步执行
+- **判定入口**：五个列表页的导入方法通过 `WithCsvAsyncImport` trait 的 `queueLargeImport()` 前置判断，命中阈值时创建后台任务记录、flash 提示「已转入后台导入」并终止同步流程
+- **进度记录**：`csv_import_jobs` 表记录状态（`pending → processing → completed / failed`）、总行数、已处理行数（每 25 行回写一次）、成功/跳过/重复/失败行数与错误明细（JSON）
+- **队列任务**：[app/Jobs/ImportCsvJob.php](../app/Jobs/ImportCsvJob.php) 复用 `CsvService::import` 逐行导入；通过 `Tenancy::setTenant()` 显式注入租户上下文并在 `finally` 复位（与白标 SMTP 同一 worker 隔离约定）；**`tries=1` 不重试**（逐行 create 非幂等，重试会产生重复数据）
+- **完成通知**：导入完成/失败后向发起人发送站内信（`CsvImportCompletedNotification`，database 频道），失败时附错误明细下载链接
+- **失败明细下载**：`GET /csv-imports/{job}/errors`（[app/Http/Controllers/CsvImportController.php](../app/Http/Controllers/CsvImportController.php)）输出带行号的错误 CSV（UTF-8 BOM），**仅发起人本人可下载**（同租户其他成员 403），且仅在存在行错误时可用
+- **文件存储**：上传文件落 `storage/app` 私有磁盘（`imports/{id}.csv`），导入完成后删除
+
+测试见 [tests/Feature/CsvAsyncImportTest.php](../tests/Feature/CsvAsyncImportTest.php)。
+
+---
+
+## 六、模板示例
 
 商机导入模板（下载自商机列表页）：
 
@@ -88,7 +104,7 @@ ERP 采购合同,120000,2026-11-30,谈判中,Acme 公司,张 三
 
 ---
 
-## 六、扩展新模型
+## 七、扩展新模型
 
 1. 在 `CsvService::COLUMNS` 加列映射
 2. `validateRow()` 加必填校验分支

@@ -30,6 +30,10 @@ Route::middleware(['auth', 'verified', 'ensure.has.tenant'])->group(function () 
     Route::get('/attachments/{attachment}/download', [\App\Http\Controllers\AttachmentController::class, 'download'])
         ->name('attachments.download');
 
+    // CSV 后台导入失败明细下载（仅发起人本人，见 docs/csv.md）
+    Route::get('/csv-imports/{importJob}/errors', [\App\Http\Controllers\CsvImportController::class, 'errors'])
+        ->name('csv-imports.errors');
+
     Route::get('/dashboard', \App\Livewire\Dashboard::class)->name('dashboard');
     Route::get('/search', \App\Livewire\GlobalSearch::class)->name('search');
 

@@ -242,6 +242,7 @@ class CsvService
         string $modelClass,
         string $csvContent,
         ?\App\Models\Tenant $tenant = null,
+        ?callable $onProgress = null,
     ): array {
         $columns = $this->columns($modelClass);
         $tenant = $tenant ?? app(Tenancy::class)->current();
@@ -310,6 +311,11 @@ class CsvService
             if (count(array_filter(array_map('trim', $row))) === 0) {
                 $skipped++;
                 continue;
+            }
+
+            // 进度回调（后台导入按行回写 processed_rows，见 ImportCsvJob）
+            if ($onProgress !== null) {
+                ($onProgress)($rowNum);
             }
 
             try {
@@ -518,6 +524,23 @@ class CsvService
             $lines[0] = substr($lines[0], strlen(self::BOM));
         }
         return max(0, count(array_filter(array_map('trim', $lines))) - 1);
+    }
+
+    /** 行数统计（后台导入进度表用） */
+    public function countRows(string $csvContent): int
+    {
+        return $this->countCsvRows($csvContent);
+    }
+
+    /**
+     * 是否超过后台导入阈值：超过则应转队列处理（ImportCsvJob），
+     * 0 表示全部同步。见 docs/csv.md。
+     */
+    public function exceedsAsyncThreshold(string $csvContent): bool
+    {
+        $threshold = (int) config('crm.import.async_threshold', 200);
+
+        return $threshold > 0 && $this->countCsvRows($csvContent) > $threshold;
     }
 
     /** 模型类 => PlanService 资源键 */

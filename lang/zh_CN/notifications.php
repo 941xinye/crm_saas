@@ -4,6 +4,12 @@
 return [
     'greeting' => '您好！',
 
+    'csv_import' => [
+        'done' => '「:resource」导入完成：成功 :created 条。',
+        'done_with_errors' => '「:resource」导入完成：成功 :created 条，失败 :failed 条，可下载失败明细。',
+        'failed' => '「:resource」后台导入失败，请检查文件内容或联系管理员。',
+    ],
+
     'robot_title' => 'CRM通知',
     'view_details' => '查看详情：:url',
 

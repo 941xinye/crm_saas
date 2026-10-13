@@ -460,6 +460,16 @@
             </div>
         @endif
 
+        @if(session('info'))
+            <div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 6000)"
+                 class="mx-6 mt-4 bg-blue-100 border border-blue-400 text-blue-700 px-4 py-3 rounded-lg flex items-center justify-between">
+                <span class="text-sm font-medium">{{ session('info') }}</span>
+                <button @click="show = false" class="text-blue-700 hover:text-blue-900">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+        @endif
+
         <!-- 主内容 -->
         <main class="flex-1 overflow-y-auto p-6">
             {{ $slot }}

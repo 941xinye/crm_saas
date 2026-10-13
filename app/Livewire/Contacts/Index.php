@@ -3,6 +3,7 @@
 namespace App\Livewire\Contacts;
 
 use App\Livewire\Concerns\WithAdvancedFiltering;
+use App\Livewire\Concerns\WithCsvAsyncImport;
 use App\Models\Contact;
 use App\Services\AuditService;
 use App\Services\CsvService;
@@ -13,7 +14,7 @@ use Livewire\WithPagination;
 
 class Index extends Component
 {
-    use WithPagination, WithFileUploads, WithAdvancedFiltering;
+    use WithPagination, WithFileUploads, WithAdvancedFiltering, WithCsvAsyncImport;
 
     protected array $sortableColumns = ['first_name', 'last_name', 'email', 'created_at', 'updated_at'];
 
@@ -83,6 +84,11 @@ class Index extends Component
     public function import(): void
     {
         $this->validate(['importFile' => ['required', 'file', 'mimes:csv,txt', 'max:10240']]);
+
+        // 超过阈值的文件转后台队列导入（见 docs/csv.md）
+        if ($this->queueLargeImport(Contact::class)) {
+            return;
+        }
 
         try {
             $result = app(CsvService::class)->import(

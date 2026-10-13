@@ -32,6 +32,9 @@ return [
     // CsvService：导入/导出消息
     'csv_trial_ended' => '试用期已结束，无法导入数据。',
     'csv_quota_insufficient' => '配额不足：当前 :usage 条，配额 :quota 条，本批导入 :count 条后将超出。',
+    'csv_import_aborted' => '导入中止：:reason',
+    'csv_error_row' => '行号',
+    'csv_error_message' => '错误信息',
     'csv_empty_file' => '文件为空或无表头',
     'csv_missing_columns' => 'CSV 缺少必需列：:columns',
     'csv_list_separator' => '、',

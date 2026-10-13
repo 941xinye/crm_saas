@@ -7,12 +7,13 @@ use App\Services\AuditService;
 use App\Services\CsvService;
 use App\Services\Tenancy;
 use Livewire\Component;
+use App\Livewire\Concerns\WithCsvAsyncImport;
 use Livewire\WithFileUploads;
 use Livewire\WithPagination;
 
 class Index extends Component
 {
-    use WithPagination, WithFileUploads;
+    use WithPagination, WithFileUploads, WithCsvAsyncImport;
 
     public string $search = '';
     public array $selected = [];
@@ -78,6 +79,11 @@ class Index extends Component
     public function import(): void
     {
         $this->validate(['importFile' => ['required', 'file', 'mimes:csv,txt', 'max:10240']]);
+
+        // 超过阈值的文件转后台队列导入（见 docs/csv.md）
+        if ($this->queueLargeImport(Activity::class)) {
+            return;
+        }
 
         try {
             $result = app(CsvService::class)->import(

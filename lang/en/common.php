@@ -17,6 +17,7 @@ return [
     'automation' => 'Automation Workflows',
     'subscription' => 'Subscription',
     'security_2fa' => 'Security (Two-Factor)',
+    'csv_import_queued' => 'The file contains :rows rows and has been queued for background processing. You will be notified in the notification center when it completes.',
     'logout' => 'Log out',
     'guest' => 'Guest',
     'language' => 'Language',

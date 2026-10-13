@@ -38,6 +38,13 @@ return [
         'webhooks' => env('CRM_WEBHOOK_QUEUE', false),
     ],
 
+    // CSV 导入（P1，见 docs/csv.md）
+    'import' => [
+        // 超过该行数的导入自动转后台队列处理（ImportCsvJob + csv_import_jobs 进度表）
+        // 0 表示全部同步处理
+        'async_threshold' => (int) env('CRM_IMPORT_ASYNC_THRESHOLD', 200),
+    ],
+
     // 系统健康检查（crm:health-check 定时任务，见 docs/deployment.md）
     'health' => [
         // 队列失败告警：发现新失败任务时站内信通知平台超管（true 时生效）

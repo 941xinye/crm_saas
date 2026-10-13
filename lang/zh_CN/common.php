@@ -17,6 +17,7 @@ return [
     'automation' => '自动化工作流',
     'subscription' => '套餐订阅',
     'security_2fa' => '安全设置（两步验证）',
+    'csv_import_queued' => '文件包含 :rows 行数据，已转入后台处理，完成后将通过通知中心告知结果。',
     'logout' => '退出登录',
     'guest' => 'Guest',
     'language' => '界面语言',
